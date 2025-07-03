@@ -1,40 +1,36 @@
 package ru.timetracker.repository;
 
+import jakarta.persistence.*;
+import lombok.*;
+import ru.timetracker.repository.enums.UserRole;
+
+import java.time.LocalDateTime;
+
+@Builder
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+@Entity
+@Table(name="users")
 public class User {
-    private long id;
-    private String name;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String login;
+    private String password;
     private String email;
-
-    public User(long id, String name, String email) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-    }
-
-    public User() {
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
+    @Column(name = "is_active")
+    private Boolean isActive;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+    @Column(name = "first_name")
+    private String firstName;
+    @Column(name = "last_name")
+    private String lastName;
 }
