@@ -37,4 +37,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
         GROUP BY t.id, t.name
         """, nativeQuery = true)
     List<Object[]> findTaskTimeSummary(@Param("userId") Long userId);
+
+    @Query("DELETE FROM Task t WHERE t.user.id = :userId")
+    void deleteByUserId(@Param("userId") Long userId);
 }

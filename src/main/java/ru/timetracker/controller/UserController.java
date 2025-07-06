@@ -46,4 +46,10 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping(path = "/time-entry/{id}")
+    public ResponseEntity<Void> clearUserTimeEntries(@PathVariable Long id) {
+        userService.clearUserTimeEntryData(id);
+        return ResponseEntity.noContent().build();
+    }
 }

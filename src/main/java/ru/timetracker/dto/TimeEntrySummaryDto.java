@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponseDTO {
-    private Long id;
-    private String login;
-    private String email;
+public class TimeEntrySummaryDto {
+    private Long taskId;
+    private String taskTitle;
+    private String totalTime; // Формат "HH:mm"
 }

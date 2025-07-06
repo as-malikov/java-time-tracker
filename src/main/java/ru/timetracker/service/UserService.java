@@ -1,6 +1,8 @@
 package ru.timetracker.service;
 
 import lombok.Data;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.timetracker.dto.Mapper.UserMapper;
@@ -8,6 +10,8 @@ import ru.timetracker.dto.UserRequestDTO;
 import ru.timetracker.dto.UserResponseDTO;
 import ru.timetracker.exception.EntityNotFoundException;
 import ru.timetracker.model.User;
+import ru.timetracker.repository.TaskRepository;
+import ru.timetracker.repository.TimeEntryRepository;
 import ru.timetracker.repository.UserRepository;
 
 
@@ -16,9 +20,14 @@ import java.util.stream.Collectors;
 
 @Service
 @Data
+@Slf4j
 public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final TimeEntryRepository timeEntryRepository;
+    private final TaskRepository taskRepository;
+
+
 
     @Transactional
     public UserResponseDTO createUser(UserRequestDTO userRequestDTO) {
@@ -54,6 +63,15 @@ public class UserService {
     public void deleteUser(Long id) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+        timeEntryRepository.deleteByTaskUserId(id);
+        taskRepository.deleteByUserId(id);
         userRepository.deleteById(id);
+        log.info("User {} and all related data deleted", id);
+    }
+
+    @Transactional
+    public void clearUserTimeEntryData(Long id) {
+        timeEntryRepository.deleteByTaskUserId(id);
+        log.info("TimeEntry data cleared for user {}", id);
     }
 }

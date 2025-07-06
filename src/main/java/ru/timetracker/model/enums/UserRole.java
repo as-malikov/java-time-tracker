@@ -1,4 +1,4 @@
-package ru.timetracker.repository.enums;
+package ru.timetracker.model.enums;
 
 public enum UserRole {
     USER,       // Обычный пользователь
