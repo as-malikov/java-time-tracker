@@ -1,43 +1,49 @@
 package ru.timetracker.controller;
 
+import jakarta.validation.Valid;
+import lombok.Data;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.timetracker.repository.User;
+import ru.timetracker.dto.UserRequestDTO;
+import ru.timetracker.dto.UserResponseDTO;
 import ru.timetracker.service.UserService;
 
 import java.util.List;
 
+@Data
 @RestController
 @RequestMapping(path = "api/v1/users")
 public class UserController {
-
     private final UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody @Valid UserRequestDTO userRequestDTO) {
+        UserResponseDTO userResponseDTO = userService.createUser(userRequestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDTO);
     }
 
     @GetMapping
-    public List<User> getUsers() {
-        return userService.get();
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userService.create(user);
-    }
 
     @GetMapping(path = "{id}")
-    public User getUserById(@PathVariable(name = "id") Long id) {
-        return userService.getById(id);
-    }
-
-    @DeleteMapping(path = "{id}")
-    public void deleteUser(@PathVariable(name = "id") Long id) {
-        userService.delete(id);
+    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @PutMapping(path = "{id}")
-    public User updateUser(@PathVariable(name = "id") Long id, @RequestBody User user) {
-        return userService.update(id, user);
+    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable Long id,
+                                                     @RequestBody @Valid UserRequestDTO userRequestDTO) {
+        return ResponseEntity.ok(userService.updateUser(id, userRequestDTO));
+    }
+
+    @DeleteMapping(path = "{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -2,8 +2,8 @@ package ru.timetracker.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import ru.timetracker.model.User;
 
-import java.io.ObjectInputStream;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
