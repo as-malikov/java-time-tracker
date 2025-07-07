@@ -2,7 +2,10 @@ package ru.timetracker.controller;
 
 import jakarta.validation.Valid;
 import lombok.Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.timetracker.dto.UserCreateDTO;
 import ru.timetracker.dto.UserDTO;
@@ -15,38 +18,69 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "api/v1/users")
 public class UserController {
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
 
     @GetMapping
-    public List<UserDTO> getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        logger.info("Request to get all users");
+        List<UserDTO> users = userService.getAllUsers();
+        logger.debug("Retrieved {} users", users.size());
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
-    public UserDTO getUser(@PathVariable Long id) {
-        return userService.getUserById(id);
+    public ResponseEntity<UserDTO> getUser(@PathVariable Long id) {
+        logger.info("Request to get user by ID: {}", id);
+        try {
+            UserDTO user = userService.getUserById(id);
+            logger.debug("User found: ID={}, Username={}", user.getId(), user.getName());
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            logger.error("Error getting user with ID: {}", id, e);
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public UserDTO createUser(@RequestBody @Valid UserCreateDTO userCreateDTO) {
-        return userService.createUser(userCreateDTO);
+    public ResponseEntity<UserDTO> createUser(@RequestBody @Valid UserCreateDTO userCreateDTO) {
+        logger.info("Request to create new user. Username: {}", userCreateDTO.getName());
+        try {
+            UserDTO createdUser = userService.createUser(userCreateDTO);
+            logger.info("User created successfully. ID: {}, Username: {}",
+                    createdUser.getId(), createdUser.getName());
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+        } catch (Exception e) {
+            logger.error("Error creating user. Username: {}", userCreateDTO.getName(), e);
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @PutMapping("/{id}")
-    public UserDTO updateUser(@PathVariable Long id, @RequestBody @Valid UserUpdateDTO userUpdateDTO) {
-        return userService.updateUser(id, userUpdateDTO);
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id,
+            @RequestBody @Valid UserUpdateDTO userUpdateDTO) {
+        logger.info("Request to update user ID: {}", id);
+        try {
+            UserDTO updatedUser = userService.updateUser(id, userUpdateDTO);
+            logger.info("User updated successfully. ID: {}, New username: {}",
+                    id, updatedUser.getName());
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception e) {
+            logger.error("Error updating user ID: {}", id, e);
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
-//    @DeleteMapping("/{id}")
-//    @ResponseStatus(HttpStatus.NO_CONTENT)
-//    public void deleteUser(@PathVariable Long id) {
-//        userService.deleteUser(id);
-//    }
-
     @DeleteMapping("/{userId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteUserCompletely(@PathVariable Long userId) {
-        userService.deleteUserCompletely(userId);
+    public ResponseEntity<Void> deleteUserCompletely(@PathVariable Long userId) {
+        logger.info("Request to delete user ID: {}", userId);
+        try {
+            userService.deleteUserCompletely(userId);
+            logger.info("User deleted successfully. ID: {}", userId);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            logger.error("Error deleting user ID: {}", userId, e);
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }
