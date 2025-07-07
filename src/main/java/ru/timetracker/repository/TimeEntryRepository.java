@@ -17,11 +17,6 @@ public interface TimeEntryRepository extends JpaRepository<TimeEntry, Long> {
 
     Optional<TimeEntry> findByUserAndEndTimeIsNull(User user);
 
-    List<TimeEntry> findByTaskId(Long taskId);
-
-    @Query("SELECT te FROM TimeEntry te WHERE te.user.id = :userId AND te.task.id = :taskId")
-    List<TimeEntry> findByUserAndTask(Long userId, Long taskId);
-
     @Query("SELECT t.id, t.title, " +
             "SUM(FUNCTION('TIMESTAMPDIFF', SECOND, te.startTime, " +
             "CASE WHEN te.endTime IS NULL THEN CURRENT_TIMESTAMP ELSE te.endTime END)) " +
