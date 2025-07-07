@@ -1,19 +1,23 @@
 package ru.timetracker.dto.Mapper;
 
 import org.mapstruct.*;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import ru.timetracker.dto.UserRequestDTO;
-import ru.timetracker.dto.UserResponseDTO;
+import ru.timetracker.dto.UserCreateDTO;
+import ru.timetracker.dto.UserDTO;
+import ru.timetracker.dto.UserUpdateDTO;
 import ru.timetracker.model.User;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-    @Mapping(target = "id", ignore = true)
-    User toEntity(UserRequestDTO dto);
-
-    UserResponseDTO toDto(User entity);
+    UserDTO toDTO(User user);
 
     @Mapping(target = "id", ignore = true)
-    void updateEntity(UserRequestDTO dto, @MappingTarget User entity);
+    @Mapping(target = "tasks", ignore = true)
+    @Mapping(target = "timeEntries", ignore = true)
+    User toEntity(UserCreateDTO userCreateDTO);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "tasks", ignore = true)
+    @Mapping(target = "timeEntries", ignore = true)
+    void updateEntity(UserUpdateDTO userUpdateDTO, @MappingTarget User user);
 }

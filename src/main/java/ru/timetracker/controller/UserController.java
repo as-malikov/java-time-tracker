@@ -3,10 +3,10 @@ package ru.timetracker.controller;
 import jakarta.validation.Valid;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.timetracker.dto.UserRequestDTO;
-import ru.timetracker.dto.UserResponseDTO;
+import ru.timetracker.dto.UserCreateDTO;
+import ru.timetracker.dto.UserDTO;
+import ru.timetracker.dto.UserUpdateDTO;
 import ru.timetracker.service.UserService;
 
 import java.util.List;
@@ -17,39 +17,36 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
+    @GetMapping
+    public List<UserDTO> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
+    @GetMapping("/{id}")
+    public UserDTO getUser(@PathVariable Long id) {
+        return userService.getUserById(id);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<UserResponseDTO> createUser(@RequestBody @Valid UserRequestDTO userRequestDTO) {
-        UserResponseDTO userResponseDTO = userService.createUser(userRequestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDTO);
+    public UserDTO createUser(@RequestBody @Valid UserCreateDTO userCreateDTO) {
+        return userService.createUser(userCreateDTO);
     }
 
-    @GetMapping
-    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    @PutMapping("/{id}")
+    public UserDTO updateUser(@PathVariable Long id, @RequestBody @Valid UserUpdateDTO userUpdateDTO) {
+        return userService.updateUser(id, userUpdateDTO);
     }
 
+//    @DeleteMapping("/{id}")
+//    @ResponseStatus(HttpStatus.NO_CONTENT)
+//    public void deleteUser(@PathVariable Long id) {
+//        userService.deleteUser(id);
+//    }
 
-    @GetMapping(path = "{id}")
-    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getUserById(id));
-    }
-
-    @PutMapping(path = "{id}")
-    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable Long id,
-                                                     @RequestBody @Valid UserRequestDTO userRequestDTO) {
-        return ResponseEntity.ok(userService.updateUser(id, userRequestDTO));
-    }
-
-    @DeleteMapping(path = "{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping(path = "/time-entry/{id}")
-    public ResponseEntity<Void> clearUserTimeEntries(@PathVariable Long id) {
-        userService.clearUserTimeEntryData(id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUserCompletely(@PathVariable Long userId) {
+        userService.deleteUserCompletely(userId);
     }
 }

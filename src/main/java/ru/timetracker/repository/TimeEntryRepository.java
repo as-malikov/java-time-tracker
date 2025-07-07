@@ -1,46 +1,53 @@
 package ru.timetracker.repository;
 
-import org.apache.catalina.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import ru.timetracker.dto.TimeEntrySummaryDto;
+import org.springframework.transaction.annotation.Transactional;
 import ru.timetracker.model.TimeEntry;
+import ru.timetracker.model.User;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 public interface TimeEntryRepository extends JpaRepository<TimeEntry, Long> {
-    boolean existsByTaskIdAndUserIdAndEndTimeIsNull(Long taskId, Long userId);
+    List<TimeEntry> findByUserAndStartTimeBetweenOrderByStartTime(User user, LocalDateTime start, LocalDateTime end);
+
+    Optional<TimeEntry> findByUserAndEndTimeIsNull(User user);
+
     List<TimeEntry> findByTaskId(Long taskId);
 
-    @Query("SELECT te FROM TimeEntry te WHERE te.task.user.id = :userId " +
-            "AND te.startTime BETWEEN :start AND :end")
-    List<TimeEntry> findByTaskUserIdAndStartTimeBetween(
+    @Query("SELECT te FROM TimeEntry te WHERE te.user.id = :userId AND te.task.id = :taskId")
+    List<TimeEntry> findByUserAndTask(Long userId, Long taskId);
+
+    @Query("SELECT t.id, t.title, " +
+            "SUM(FUNCTION('TIMESTAMPDIFF', SECOND, te.startTime, " +
+            "CASE WHEN te.endTime IS NULL THEN CURRENT_TIMESTAMP ELSE te.endTime END)) " +
+            "FROM TimeEntry te JOIN te.task t " +
+            "WHERE te.user.id = :userId AND te.startTime BETWEEN :start AND :end " +
+            "GROUP BY t.id, t.title " +
+            "ORDER BY MIN(te.startTime)")
+    List<Object[]> findTaskDurationsByUserAndPeriod(
             @Param("userId") Long userId,
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end);
 
-    @Query("SELECT te FROM TimeEntry te WHERE te.user.id = :userId AND te.startTime BETWEEN :start AND :end")
-    List<TimeEntry> findByUserIdAndPeriod(
+    Optional<TimeEntry> findFirstByUserIdAndTaskIdOrderByStartTimeAsc(Long userId, Long taskId);
+
+    @Query("SELECT SUM(FUNCTION('TIMESTAMPDIFF', SECOND, te.startTime, " +
+            "CASE WHEN te.endTime IS NULL THEN CURRENT_TIMESTAMP ELSE te.endTime END)) " +
+            "FROM TimeEntry te " +
+            "WHERE te.user.id = :userId AND te.startTime BETWEEN :start AND :end")
+    Long sumWorkDurationByUserAndPeriod(
             @Param("userId") Long userId,
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end);
 
-    @Query("SELECT te FROM TimeEntry te WHERE te.endTime IS NULL")
-    List<TimeEntry> findActiveEntries();
+    @Transactional
+    @Modifying
+    void deleteByUser(User user);
 
-    @Query("SELECT te FROM TimeEntry te WHERE te.task.id = :taskId AND te.endTime IS NULL")
-    Optional<TimeEntry> findActiveByTaskId(@Param("taskId") Long taskId);
-
-    // Находим все незавершенные записи
     List<TimeEntry> findByEndTimeIsNull();
-
-    List<TimeEntry> findByEndTimeIsNullAndStartTimeBefore(LocalDateTime beforeTime);
-
-    @Query("DELETE FROM TimeEntry te WHERE te.task.user.id = :userId")
-    void deleteByTaskUserId(@Param("userId") Long userId);
-
 }

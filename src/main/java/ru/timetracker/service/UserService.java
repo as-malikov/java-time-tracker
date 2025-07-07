@@ -1,22 +1,22 @@
 package ru.timetracker.service;
 
+
 import lombok.Data;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.timetracker.dto.Mapper.UserMapper;
-import ru.timetracker.dto.UserRequestDTO;
-import ru.timetracker.dto.UserResponseDTO;
-import ru.timetracker.exception.EntityNotFoundException;
+import ru.timetracker.dto.UserCreateDTO;
+import ru.timetracker.dto.UserDTO;
+import ru.timetracker.dto.UserUpdateDTO;
+import ru.timetracker.exception.EmailAlreadyExistsException;
+import ru.timetracker.exception.ResourceNotFoundException;
 import ru.timetracker.model.User;
 import ru.timetracker.repository.TaskRepository;
 import ru.timetracker.repository.TimeEntryRepository;
 import ru.timetracker.repository.UserRepository;
 
-
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Data
@@ -24,54 +24,64 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final TimeEntryRepository timeEntryRepository;
     private final TaskRepository taskRepository;
+    private final TimeEntryRepository timeEntryRepository;
 
-
-
-    @Transactional
-    public UserResponseDTO createUser(UserRequestDTO userRequestDTO) {
-        User user = userMapper.toEntity(userRequestDTO);
-        User savedUser = userRepository.save(user);
-        return userMapper.toDto(savedUser);
+    @Transactional(readOnly = true)
+    public List<UserDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(userMapper::toDTO)
+                .toList();
     }
 
     @Transactional(readOnly = true)
-    public UserResponseDTO getUserById(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
-        return userMapper.toDto(user);
+    public UserDTO getUserById(Long id) {
+        return userMapper.toDTO(getUserEntity(id));
     }
+
+    @Transactional
+    public UserDTO createUser(UserCreateDTO userCreateDTO) {
+        if (userRepository.existsByEmail(userCreateDTO.getEmail())) {
+            throw new EmailAlreadyExistsException(userCreateDTO.getEmail());
+        }
+
+        User user = userMapper.toEntity(userCreateDTO);
+        user = userRepository.save(user);
+        return userMapper.toDTO(user);
+    }
+
+    @Transactional
+    public UserDTO updateUser(Long id, UserUpdateDTO userUpdateDTO) {
+        User user = getUserEntity(id);
+
+        if (!user.getEmail().equals(userUpdateDTO.getEmail()) &&
+                userRepository.existsByEmail(userUpdateDTO.getEmail())) {
+            throw new EmailAlreadyExistsException(userUpdateDTO.getEmail());
+        }
+
+        userMapper.updateEntity(userUpdateDTO, user);
+        user = userRepository.save(user);
+        return userMapper.toDTO(user);
+    }
+
+//    @Transactional
+//    public void deleteUser(Long id) {
+//        User user = getUserEntity(id);
+//        userRepository.delete(user);
+//    }
 
     @Transactional(readOnly = true)
-    public List<UserResponseDTO> getAllUsers() {
-        return userRepository.findAll().stream().map(userMapper::toDto).collect(Collectors.toList());
+    private User getUserEntity(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     }
 
     @Transactional
-    public UserResponseDTO updateUser(Long id, UserRequestDTO userRequestDto) {
-        User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
-
-        userMapper.updateEntity(userRequestDto, existingUser);
-        User updatedUser = userRepository.save(existingUser);
-
-        return userMapper.toDto(updatedUser);
-    }
-
-    @Transactional
-    public void deleteUser(Long id) {
-        User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
-        timeEntryRepository.deleteByTaskUserId(id);
-        taskRepository.deleteByUserId(id);
-        userRepository.deleteById(id);
-        log.info("User {} and all related data deleted", id);
-    }
-
-    @Transactional
-    public void clearUserTimeEntryData(Long id) {
-        timeEntryRepository.deleteByTaskUserId(id);
-        log.info("TimeEntry data cleared for user {}", id);
+    public void deleteUserCompletely(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        timeEntryRepository.deleteByUser(user);
+        taskRepository.deleteByUser(user);
+        userRepository.delete(user);
     }
 }

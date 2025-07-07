@@ -3,54 +3,62 @@ package ru.timetracker.controller;
 import jakarta.validation.Valid;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.timetracker.dto.TaskRequestDto;
-import ru.timetracker.dto.TaskResponseDto;
+import ru.timetracker.dto.TaskCreateDTO;
+import ru.timetracker.dto.TaskDTO;
+import ru.timetracker.dto.TaskUpdateDTO;
 import ru.timetracker.service.TaskService;
 
 import java.util.List;
 
 @Data
 @RestController
-@RequestMapping(path = "api/v1/tasks")
+@RequestMapping(path = "/api/v1/users/{userId}/tasks")
 public class TaskController {
     private final TaskService taskService;
 
-    @PostMapping
-    public ResponseEntity<TaskResponseDto> createTask(
-            @Valid @RequestBody TaskRequestDto requestDto) {
-        TaskResponseDto responseDto = taskService.createTask(requestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
-    }
-
     @GetMapping
-    public ResponseEntity<List<TaskResponseDto>> getAllTasks() {
-        return ResponseEntity.ok(taskService.getAllTasks());
+    public List<TaskDTO> getUserTasks(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "false") boolean includeInactive) {
+        return taskService.getUserTasks(userId, includeInactive);
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<TaskResponseDto>> getUserTasks(
-            @PathVariable Long userId) {
-        return ResponseEntity.ok(taskService.getUserTasks(userId));
+    @GetMapping("/{taskId}")
+    public TaskDTO getTask(
+            @PathVariable Long userId,
+            @PathVariable Long taskId) {
+        return taskService.getTaskById(userId, taskId);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<TaskResponseDto> getTaskById(
-            @PathVariable Long id) {
-        return ResponseEntity.ok(taskService.getTaskById(id));
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public TaskDTO createTask(
+            @PathVariable Long userId,
+            @RequestBody @Valid TaskCreateDTO taskCreateDTO) {
+        return taskService.createTask(userId, taskCreateDTO);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<TaskResponseDto> updateTask(
-            @PathVariable Long id,
-            @Valid @RequestBody TaskRequestDto requestDto) {
-        return ResponseEntity.ok(taskService.updateTask(id, requestDto));
+    @PutMapping("/{taskId}")
+    public TaskDTO updateTask(
+            @PathVariable Long userId,
+            @PathVariable Long taskId,
+            @RequestBody @Valid TaskUpdateDTO taskUpdateDTO) {
+        return taskService.updateTask(taskId, userId, taskUpdateDTO);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
-        taskService.deleteTask(id);
-        return ResponseEntity.noContent().build();
+    @PatchMapping("/{taskId}/toggle-status")
+    public TaskDTO toggleTaskStatus(
+            @PathVariable Long userId,
+            @PathVariable Long taskId) {
+        return taskService.toggleTaskStatus(taskId, userId);
+    }
+
+    @DeleteMapping("/{taskId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteTask(
+            @PathVariable Long userId,
+            @PathVariable Long taskId) {
+        taskService.deleteTask(taskId, userId);
     }
 }

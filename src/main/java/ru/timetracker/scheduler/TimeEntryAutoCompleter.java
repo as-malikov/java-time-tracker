@@ -1,5 +1,6 @@
 package ru.timetracker.scheduler;
 
+import jakarta.transaction.Transactional;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -9,6 +10,7 @@ import ru.timetracker.repository.TimeEntryRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -18,21 +20,32 @@ import java.util.List;
 public class TimeEntryAutoCompleter {
     private final TimeEntryRepository timeEntryRepository;
 
-    // Запускается каждый день в 23:59
-    @Scheduled(cron = "0 59 23 * * ?")
-    public void completeOpenTimeEntries() {
+    @Scheduled(cron = "${app.auto-complete.cron:0 59 23 * * ?}")
+    @Transactional
+    public void autoCompleteTimeEntries() {
+        LocalDateTime endOfDay = LocalDateTime.now().with(LocalTime.of(23, 59));
         LocalDate today = LocalDate.now();
-        LocalDateTime endOfDay = today.atTime(23, 59, 59);
 
-        List<TimeEntry> openEntries = timeEntryRepository.findByEndTimeIsNull();
+        List<TimeEntry> activeEntries = timeEntryRepository.findByEndTimeIsNull();
 
-        openEntries.forEach(entry -> {
-            // Если запись началась сегодня
-            if (entry.getStartTime().toLocalDate().equals(today)) {
-                entry.setEndTime(endOfDay);
-                timeEntryRepository.save(entry);
-                log.info("Auto-completed time entry ID: {}", entry.getId());
-            }
-        });
+        if (activeEntries.isEmpty()) {
+            log.debug("No active time entries found for auto-completion");
+            return;
+        }
+
+        log.info("Starting auto-completion of {} time entries", activeEntries.size());
+
+        activeEntries.stream()
+                .filter(entry -> entry.getStartTime().toLocalDate().isBefore(today))
+                .forEach(entry -> {
+                    entry.setEndTime(endOfDay);
+                    log.info("Auto-completed time entry ID {} for user {} (started at {})",
+                            entry.getId(),
+                            entry.getUser().getId(),
+                            entry.getStartTime());
+                });
+
+        List<TimeEntry> completedEntries = timeEntryRepository.saveAll(activeEntries);
+        log.info("Successfully completed {} time entries", completedEntries.size());
     }
 }
