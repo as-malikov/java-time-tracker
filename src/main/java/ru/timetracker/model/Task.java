@@ -12,6 +12,7 @@ import java.util.List;
 @Entity
 @Table(name = "tasks")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Task {

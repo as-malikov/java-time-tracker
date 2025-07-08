@@ -1,6 +1,9 @@
 package ru.timetracker.service;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -28,6 +31,8 @@ import java.util.List;
 
 @Service
 @Data
+@AllArgsConstructor
+@Builder
 public class TimeEntryService {
     private static final Logger logger = LogManager.getLogger(TimeEntryService.class);
 
