@@ -62,7 +62,6 @@ POST /api/v1/users
   "createdAt": "2023-01-15T14:30:00"
 }
 ```
-
 **Получить всех пользователей**
 ```bash
 GET /api/v1/users
@@ -78,7 +77,28 @@ GET /api/v1/users
   }
 ]
 ```
-**Удалить пользователя**
+**Изменить пользователя**
+```bash
+PUT /api/v1/users/{userId}
+```
+Тело запроса:
+```json
+{
+    "name": "Иван Иванов",
+    "email": "ivan@example.com"
+}
+```
+Ответ:
+```json
+{
+    "id": 1,
+    "name": "Иван Иванов",
+    "email": "ivan@example.com",
+    "createdAt": "2023-01-15T14:30:00"
+}
+```
+
+**Удалить пользователя и всю информацию о пользователе**
 ```bash
 DELETE /api/v1/users/{userId}
 ```
@@ -164,20 +184,71 @@ POST /api/v1/users/{userId}/time-entries/{timeEntryId}/stop
   "active": false
 }
 ```
-**Получить суммарное время работы**
+**Показать все трудозатраты пользователя за период (Задача-Сумма)**
 ```bash
-GET /api/v1/users/{userId}/time-entries/total-work-duration?from=2023-01-01&to=2023-01-31
+GET /api/v1/users/{userId}/time-entries/task-durations?from=2025-07-09T00:00&to=2025-07-09T23:59
+```
+Ответ:
+```json
+[
+    {
+        "taskId": 1,
+        "taskTitle": "Разработка API",
+        "duration": "28:01",
+        "firstEntryTime": "2023-01-15T14:30:00"
+    }
+]
+```
+**Показать все временные интервалы занятые работой за период (Временной интервал - Задача)**
+```bash
+GET /api/v1/users/{userId}/time-entries/time-intervals?from=2025-07-09T00:00&to=2025-07-09T23:59
+```
+Ответ:
+```json
+[
+    {
+        "period": "13:36",
+        "taskTitle": "Неактивность",
+        "startTime": "2025-07-09T00:00:00",
+        "endTime": "2025-07-09T13:36:05.996152",
+        "workInterval": false
+    },
+    {
+        "period": "00:06",
+        "taskTitle": "Разработка API",
+        "startTime": "2025-07-09T13:36:05.996152",
+        "endTime": "2025-07-09T13:42:29.612918449",
+        "workInterval": true
+    },
+    {
+        "period": "10:16",
+        "taskTitle": "Неактивность",
+        "startTime": "2025-07-09T13:42:29.612918449",
+        "endTime": "2025-07-09T23:59:00",
+        "workInterval": false
+    }
+]
+```
+
+**Показать сумму трудозатрат по всем задачам пользователя за период**
+```bash
+GET /api/v1/users/{userId}/time-entries/total-work-duration?from=2025-07-09T00:00&to=2025-07-09T23:59
 ```
 **Ответ:**
 ```json
 {
-  "totalDuration": "15:30",
-  "totalSeconds": 55800,
-  "days": 31,
-  "periodStart": "2023-01-01T00:00:00",
-  "periodEnd": "2023-01-31T23:59:59"
+   "totalDuration": "01:56",
+   "totalSeconds": 6989,
+   "days": 1,
+   "periodStart": "2025-07-09T00:00:00",
+   "periodEnd": "2025-07-09T23:59:00"
 }
 ```
+**Очистить данные трекинга пользователя**
+```bash
+DELETE /api/v1/users/{userId}/time-entries/tracking-data
+```
+Ответ: **204 No Content**
 
 ## Примеры запросов
 **1. Получить временные интервалы:**
