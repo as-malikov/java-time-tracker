@@ -11,16 +11,28 @@ import ru.timetracker.dto.user.UserCreateDTO;
 import ru.timetracker.dto.user.UserDTO;
 import ru.timetracker.dto.user.UserUpdateDTO;
 import ru.timetracker.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 
 @Data
 @RestController
 @RequestMapping(path = "api/v1/users")
+@Tag(name = "User Management", description = "API for managing users")
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
 
+    @Operation(summary = "Get all users", description = "Retrieves a list of all registered users")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved list of users",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = UserDTO.class)))
     @GetMapping
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         logger.info("Request to get all users");
@@ -36,8 +48,17 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Get user by ID", description = "Retrieves a single user by their unique identifier")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UserDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUser(@PathVariable Long id) {
+    public ResponseEntity<UserDTO> getUser(
+            @Parameter(description = "ID of the user to be retrieved", required = true)
+            @PathVariable Long id) {
         logger.info("Request to get user by ID: {}", id);
         try {
             UserDTO user = userService.getUserById(id);
@@ -50,8 +71,18 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Create a new user", description = "Registers a new user in the system")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "User created successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UserDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input data"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PostMapping
-    public ResponseEntity<UserDTO> createUser(@RequestBody @Valid UserCreateDTO userCreateDTO) {
+    public ResponseEntity<UserDTO> createUser(
+            @Parameter(description = "User data for registration", required = true)
+            @RequestBody @Valid UserCreateDTO userCreateDTO) {
         logger.info("Request to create new user. Username: {}", userCreateDTO.getName());
         try {
             UserDTO createdUser = userService.createUser(userCreateDTO);
@@ -65,8 +96,21 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Update user", description = "Updates an existing user's information")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User updated successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UserDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input data"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody @Valid UserUpdateDTO userUpdateDTO) {
+    public ResponseEntity<UserDTO> updateUser(
+            @Parameter(description = "ID of the user to be updated", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Updated user data", required = true)
+            @RequestBody @Valid UserUpdateDTO userUpdateDTO) {
         logger.info("Request to update user ID: {}", id);
         try {
             UserDTO updatedUser = userService.updateUser(id, userUpdateDTO);
@@ -79,8 +123,16 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Delete user", description = "Permanently deletes a user from the system")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "User deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteUserCompletely(@PathVariable Long userId) {
+    public ResponseEntity<Void> deleteUserCompletely(
+            @Parameter(description = "ID of the user to be deleted", required = true)
+            @PathVariable Long userId) {
         logger.info("Request to delete user ID: {}", userId);
         try {
             userService.deleteUserCompletely(userId);
