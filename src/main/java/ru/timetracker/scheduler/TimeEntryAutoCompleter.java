@@ -42,11 +42,11 @@ public class TimeEntryAutoCompleter {
         log.info("Starting auto-completion of {} time entries", activeEntries.size());
 
         activeEntries.forEach(entry -> {
-            timeEntryService.stopTimeEntry(entry.getUser().getId());
-                    log.info("Auto-completed time entry ID {} for user {} (started at {})", entry.getId(),
-                            entry.getUser()
-                                    .getId(), entry.getStartTime());
-                });
+            timeEntryService.stopTimeEntry(entry.getUser()
+                    .getId());
+            log.info("Auto-completed time entry ID {} for user {} (started at {})", entry.getId(), entry.getUser()
+                    .getId(), entry.getStartTime());
+        });
         List<TimeEntry> completedEntries = timeEntryRepository.saveAll(activeEntries);
         log.info("Successfully completed {} time entries", completedEntries.size());
     }

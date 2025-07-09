@@ -16,32 +16,21 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Task {
-    @Id
-    @GeneratedValue
-    private Long id;
+    @Id @GeneratedValue private Long id;
 
-    @Column(nullable = false)
-    private String title;
+    @Column(nullable = false) private String title;
 
-    @Column
-    private String description;
+    @Column private String description;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Column(nullable = false, updatable = false) private LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    private boolean active = true;
+    @Column(nullable = false) private boolean active = true;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private User user;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "user_id", nullable = false) @ToString.Exclude
+    @EqualsAndHashCode.Exclude private User user;
 
-    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private List<TimeEntry> timeEntries;
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true) @ToString.Exclude
+    @EqualsAndHashCode.Exclude private List<TimeEntry> timeEntries;
 
     @PrePersist
     protected void onCreate() {

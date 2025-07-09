@@ -20,11 +20,9 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class TaskControllerTest {
 
-    @Mock
-    private TaskService taskService;
+    @Mock private TaskService taskService;
 
-    @InjectMocks
-    private TaskController taskController;
+    @InjectMocks private TaskController taskController;
 
     @Test
     void getUserTasks_Success() {

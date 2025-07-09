@@ -23,11 +23,9 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class TimeEntryControllerTest {
 
-    @Mock
-    private TimeEntryService timeEntryService;
+    @Mock private TimeEntryService timeEntryService;
 
-    @InjectMocks
-    private TimeEntryController timeEntryController;
+    @InjectMocks private TimeEntryController timeEntryController;
 
     @Test
     void startTimeEntry_Success() {
@@ -59,7 +57,8 @@ class TimeEntryControllerTest {
     @Test
     void getTimeEntries_Success() {
         Long userId = 1L;
-        LocalDateTime from = LocalDateTime.now().minusDays(1);
+        LocalDateTime from = LocalDateTime.now()
+                .minusDays(1);
         LocalDateTime to = LocalDateTime.now();
         List<TimeEntryDTO> entries = List.of(new TimeEntryDTO());
         when(timeEntryService.getUserTimeEntries(userId, from, to)).thenReturn(entries);
@@ -74,7 +73,8 @@ class TimeEntryControllerTest {
     @Test
     void getUserTaskDurations_Success() {
         Long userId = 1L;
-        LocalDateTime from = LocalDateTime.now().minusDays(1);
+        LocalDateTime from = LocalDateTime.now()
+                .minusDays(1);
         LocalDateTime to = LocalDateTime.now();
         List<TaskDurationDTO> durations = List.of(new TaskDurationDTO());
         when(timeEntryService.getUserTaskDurations(userId, from, to)).thenReturn(durations);
@@ -89,7 +89,8 @@ class TimeEntryControllerTest {
     @Test
     void getUserTimeIntervals_Success() {
         Long userId = 1L;
-        LocalDateTime from = LocalDateTime.now().minusDays(1);
+        LocalDateTime from = LocalDateTime.now()
+                .minusDays(1);
         LocalDateTime to = LocalDateTime.now();
         List<TimeIntervalDTO> intervals = List.of(new TimeIntervalDTO());
         when(timeEntryService.getUserTimeIntervals(userId, from, to)).thenReturn(intervals);
@@ -104,7 +105,8 @@ class TimeEntryControllerTest {
     @Test
     void getTotalWorkDuration_Success() {
         Long userId = 1L;
-        LocalDateTime from = LocalDateTime.now().minusDays(1);
+        LocalDateTime from = LocalDateTime.now()
+                .minusDays(1);
         LocalDateTime to = LocalDateTime.now();
         TotalWorkDurationDTO duration = new TotalWorkDurationDTO();
         when(timeEntryService.getTotalWorkDuration(userId, from, to)).thenReturn(duration);

@@ -25,37 +25,24 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
-
-    @Mock
-    private UserMapper userMapper;
-
-    @Mock
-    private TaskRepository taskRepository;
-
-    @Mock
-    private TimeEntryRepository timeEntryRepository;
-
-    @InjectMocks
-    private UserService userService;
-
     private final Long userId = 1L;
     private final String email = "test@example.com";
     private final String newEmail = "new@example.com";
+    @Mock private UserRepository userRepository;
+    @Mock private UserMapper userMapper;
+    @Mock private TaskRepository taskRepository;
+    @Mock private TimeEntryRepository timeEntryRepository;
+    @InjectMocks private UserService userService;
 
     @Test
     void getAllUsers_ShouldReturnListOfUsers() {
-        // Arrange
         User user = new User();
         UserDTO userDTO = new UserDTO();
         when(userRepository.findAll()).thenReturn(List.of(user));
         when(userMapper.toDTO(user)).thenReturn(userDTO);
 
-        // Act
         List<UserDTO> result = userService.getAllUsers();
 
-        // Assert
         assertEquals(1, result.size());
         assertEquals(userDTO, result.get(0));
         verify(userRepository).findAll();
@@ -63,44 +50,35 @@ class UserServiceTest {
 
     @Test
     void getAllUsers_ShouldReturnEmptyList_WhenNoUsersExist() {
-        // Arrange
         when(userRepository.findAll()).thenReturn(List.of());
 
-        // Act
         List<UserDTO> result = userService.getAllUsers();
 
-        // Assert
         assertTrue(result.isEmpty());
     }
 
     @Test
     void getUserById_ShouldReturnUser_WhenExists() {
-        // Arrange
         User user = new User();
         UserDTO userDTO = new UserDTO();
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(userMapper.toDTO(user)).thenReturn(userDTO);
 
-        // Act
         UserDTO result = userService.getUserById(userId);
 
-        // Assert
         assertEquals(userDTO, result);
         verify(userRepository).findById(userId);
     }
 
     @Test
     void getUserById_ShouldThrowException_WhenUserNotFound() {
-        // Arrange
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        // Act & Assert
         assertThrows(ResourceNotFoundException.class, () -> userService.getUserById(userId));
     }
 
     @Test
     void createUser_ShouldCreateNewUser() {
-        // Arrange
         UserCreateDTO createDTO = new UserCreateDTO("Test User", email);
         User user = new User();
         User savedUser = new User();
@@ -111,27 +89,22 @@ class UserServiceTest {
         when(userRepository.save(user)).thenReturn(savedUser);
         when(userMapper.toDTO(savedUser)).thenReturn(userDTO);
 
-        // Act
         UserDTO result = userService.createUser(createDTO);
 
-        // Assert
         assertEquals(userDTO, result);
         verify(userRepository).save(user);
     }
 
     @Test
     void createUser_ShouldThrowException_WhenEmailExists() {
-        // Arrange
         UserCreateDTO createDTO = new UserCreateDTO("Test User", email);
         when(userRepository.existsByEmail(email)).thenReturn(true);
 
-        // Act & Assert
         assertThrows(EmailAlreadyExistsException.class, () -> userService.createUser(createDTO));
     }
 
     @Test
     void updateUser_ShouldUpdateUser() {
-        // Arrange
         UserUpdateDTO updateDTO = new UserUpdateDTO("Updated Name", newEmail);
         User existingUser = new User();
         existingUser.setEmail(email);
@@ -142,10 +115,8 @@ class UserServiceTest {
         when(userRepository.save(existingUser)).thenReturn(existingUser);
         when(userMapper.toDTO(existingUser)).thenReturn(userDTO);
 
-        // Act
         UserDTO result = userService.updateUser(userId, updateDTO);
 
-        // Assert
         assertEquals(userDTO, result);
         assertEquals(email, existingUser.getEmail());
         verify(userMapper).updateEntity(updateDTO, existingUser);
@@ -153,7 +124,6 @@ class UserServiceTest {
 
     @Test
     void updateUser_ShouldNotCheckEmail_WhenNotChanged() {
-        // Arrange
         UserUpdateDTO updateDTO = new UserUpdateDTO("Updated Name", email);
         User existingUser = new User();
         existingUser.setEmail(email);
@@ -163,17 +133,14 @@ class UserServiceTest {
         when(userRepository.save(existingUser)).thenReturn(existingUser);
         when(userMapper.toDTO(existingUser)).thenReturn(userDTO);
 
-        // Act
         UserDTO result = userService.updateUser(userId, updateDTO);
 
-        // Assert
         assertEquals(userDTO, result);
         verify(userRepository, never()).existsByEmail(any());
     }
 
     @Test
     void updateUser_ShouldThrowException_WhenNewEmailExists() {
-        // Arrange
         UserUpdateDTO updateDTO = new UserUpdateDTO("Updated Name", newEmail);
         User existingUser = new User();
         existingUser.setEmail(email);
@@ -181,32 +148,24 @@ class UserServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
         when(userRepository.existsByEmail(newEmail)).thenReturn(true);
 
-        // Act & Assert
-        assertThrows(EmailAlreadyExistsException.class,
-                () -> userService.updateUser(userId, updateDTO));
+        assertThrows(EmailAlreadyExistsException.class, () -> userService.updateUser(userId, updateDTO));
     }
 
     @Test
     void updateUser_ShouldThrowException_WhenUserNotFound() {
-        // Arrange
         UserUpdateDTO updateDTO = new UserUpdateDTO();
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        // Act & Assert
-        assertThrows(ResourceNotFoundException.class,
-                () -> userService.updateUser(userId, updateDTO));
+        assertThrows(ResourceNotFoundException.class, () -> userService.updateUser(userId, updateDTO));
     }
 
     @Test
     void deleteUserCompletely_ShouldDeleteUserAndRelatedData() {
-        // Arrange
         User user = new User();
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        // Act
         userService.deleteUserCompletely(userId);
 
-        // Assert
         verify(timeEntryRepository).deleteByUser(user);
         verify(taskRepository).deleteByUser(user);
         verify(userRepository).delete(user);
@@ -214,18 +173,13 @@ class UserServiceTest {
 
     @Test
     void deleteUserCompletely_ShouldThrowException_WhenUserNotFound() {
-        // Arrange
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        // Act & Assert
-        assertThrows(ResourceNotFoundException.class,
-                () -> userService.deleteUserCompletely(userId));
+        assertThrows(ResourceNotFoundException.class, () -> userService.deleteUserCompletely(userId));
     }
 
-    // Edge case tests
     @Test
     void updateUser_ShouldUpdateOnlyName_WhenEmailNotProvided() {
-        // Arrange
         UserUpdateDTO updateDTO = new UserUpdateDTO("New Name", null);
         User existingUser = new User();
         existingUser.setName("New Name");
@@ -236,10 +190,8 @@ class UserServiceTest {
         when(userRepository.save(existingUser)).thenReturn(existingUser);
         when(userMapper.toDTO(existingUser)).thenReturn(userDTO);
 
-        // Act
         UserDTO result = userService.updateUser(userId, updateDTO);
 
-        // Assert
         assertEquals(userDTO, result);
         assertEquals("New Name", existingUser.getName());
         assertEquals(email, existingUser.getEmail());
@@ -248,7 +200,6 @@ class UserServiceTest {
 
     @Test
     void createUser_ShouldHandleEmptyName() {
-        // Arrange
         UserCreateDTO createDTO = new UserCreateDTO("Name", email);
         User user = new User();
         User savedUser = new User();
@@ -259,10 +210,8 @@ class UserServiceTest {
         when(userRepository.save(user)).thenReturn(savedUser);
         when(userMapper.toDTO(savedUser)).thenReturn(userDTO);
 
-        // Act
         UserDTO result = userService.createUser(createDTO);
 
-        // Assert
         assertEquals(userDTO, result);
     }
 }

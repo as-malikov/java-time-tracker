@@ -26,11 +26,13 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final TaskMapper taskMapper;
+    private final TaskRepository timeEntryRepository;
 
     @Transactional(readOnly = true)
     public List<TaskDTO> getUserTasks(Long userId, boolean includeInactive) {
         logger.debug("Fetching tasks for user ID: {}, includeInactive: {}", userId, includeInactive);
-        List<TaskDTO> tasks = taskRepository.findByUserId(userId, includeInactive).stream()
+        List<TaskDTO> tasks = taskRepository.findByUserId(userId, includeInactive)
+                .stream()
                 .map(taskMapper::toDTO)
                 .toList();
         logger.info("Found {} tasks for user ID: {}", tasks.size(), userId);
@@ -71,8 +73,7 @@ public class TaskService {
         task.setUser(user);
         task = taskRepository.save(task);
 
-        logger.info("Created new task ID: {} for user ID: {}. Title: {}",
-                task.getId(), userId, task.getTitle());
+        logger.info("Created new task ID: {} for user ID: {}. Title: {}", task.getId(), userId, task.getTitle());
         return taskMapper.toDTO(task);
     }
 
@@ -114,8 +115,8 @@ public class TaskService {
         task.setActive(newStatus);
         task = taskRepository.save(task);
 
-        logger.info("Status changed for task ID: {} for user ID: {}. New status: {}",
-                taskId, userId, newStatus ? "active" : "inactive");
+        logger.info("Status changed for task ID: {} for user ID: {}. New status: {}", taskId, userId,
+                newStatus ? "active" : "inactive");
         return taskMapper.toDTO(task);
     }
 
@@ -132,5 +133,15 @@ public class TaskService {
 
         taskRepository.delete(task);
         logger.info("Deleted task ID: {} for user ID: {}", taskId, userId);
+    }
+
+    public void deleteTasksCompletely(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    String errorMessage = "User with ID " + userId + " not found";
+                    return new ResourceNotFoundException(errorMessage);
+                });
+        timeEntryRepository.deleteByUser(user);
+        taskRepository.deleteByUser(user);
     }
 }

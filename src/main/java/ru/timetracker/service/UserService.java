@@ -31,7 +31,8 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<UserDTO> getAllUsers() {
         logger.debug("Request to fetch all users");
-        List<UserDTO> users = userRepository.findAll().stream()
+        List<UserDTO> users = userRepository.findAll()
+                .stream()
                 .map(userMapper::toDTO)
                 .toList();
         logger.info("Retrieved {} users", users.size());
@@ -68,8 +69,8 @@ public class UserService {
         logger.debug("Attempting to update user with ID: {}", id);
         User user = getUserEntity(id);
 
-        if (!user.getEmail().equals(userUpdateDTO.getEmail()) &&
-                userRepository.existsByEmail(userUpdateDTO.getEmail())) {
+        if (!user.getEmail()
+                .equals(userUpdateDTO.getEmail()) && userRepository.existsByEmail(userUpdateDTO.getEmail())) {
             String errorMessage = "Email " + userUpdateDTO.getEmail() + " is already in use by another user";
             logger.error(errorMessage);
             throw new EmailAlreadyExistsException(userUpdateDTO.getEmail());

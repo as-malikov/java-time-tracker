@@ -20,11 +20,9 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UserControllerTest {
 
-    @Mock
-    private UserService userService;
+    @Mock private UserService userService;
 
-    @InjectMocks
-    private UserController userController;
+    @InjectMocks private UserController userController;
 
     @Test
     void getAllUsers_Success() {

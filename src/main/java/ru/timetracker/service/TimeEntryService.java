@@ -47,13 +47,13 @@ public class TimeEntryService {
         User user = getUser(userId);
         Task task = getTask(dto.getTaskId());
 
-        // Проверка, что задача принадлежит пользователю
-        if (!task.getUser().getId().equals(userId)) {
+        if (!task.getUser()
+                .getId()
+                .equals(userId)) {
             logger.error("Task {} does not belong to user {}", dto.getTaskId(), userId);
             throw new ResourceNotFoundException("Task not found");
         }
 
-        // Завершаем предыдущую активную запись (если есть)
         timeEntryRepository.findByUserAndEndTimeIsNull(user)
                 .ifPresent(entry -> {
                     logger.debug("Stopping previous active time entry {}", entry.getId());
@@ -90,29 +90,26 @@ public class TimeEntryService {
     public List<TimeEntryDTO> getUserTimeEntries(Long userId, LocalDateTime from, LocalDateTime to) {
         logger.info("Getting time entries for user {} from {} to {}", userId, from, to);
 
-        // Если оба параметра null, устанавливаем период "текущие сутки"
         if (from == null && to == null) {
             LocalDateTime now = LocalDateTime.now();
-            from = now.toLocalDate().atStartOfDay();
+            from = now.toLocalDate()
+                    .atStartOfDay();
             to = now;
             logger.debug("Setting default period: from {} to {}", from, to);
-        }
-        // Если указан только from, устанавливаем to = текущее время
-        else if (from != null && to == null) {
+        } else if (from != null && to == null) {
             to = LocalDateTime.now();
             logger.debug("Setting to = current time: {}", to);
-        }
-        // Если указан только to, устанавливаем from = начало суток для to
-        else if (to != null && from == null) {
-            from = to.toLocalDate().atStartOfDay();
+        } else if (to != null && from == null) {
+            from = to.toLocalDate()
+                    .atStartOfDay();
             logger.debug("Setting from = start of day: {}", from);
         }
 
-        List<TimeEntryDTO> result = timeEntryRepository.findByUserAndStartTimeBetweenOrderByStartTime(
-                        getUser(userId), from, to)
-                .stream()
-                .map(timeEntryMapper::toDTO)
-                .toList();
+        List<TimeEntryDTO> result =
+                timeEntryRepository.findByUserAndStartTimeBetweenOrderByStartTime(getUser(userId), from, to)
+                        .stream()
+                        .map(timeEntryMapper::toDTO)
+                        .toList();
 
         logger.debug("Found {} time entries for user {}", result.size(), userId);
         return result;
@@ -139,29 +136,28 @@ public class TimeEntryService {
     public List<TaskDurationDTO> getUserTaskDurations(Long userId, LocalDateTime from, LocalDateTime to) {
         logger.info("Getting task durations for user {} from {} to {}", userId, from, to);
 
-        // Валидация периода
         if (from != null && to != null && from.isAfter(to)) {
             logger.error("Invalid period: from {} is after to {}", from, to);
             throw new IllegalArgumentException("End date must be after start date");
         }
 
-        // Установка периода по умолчанию
         if (from == null && to == null) {
             LocalDateTime now = LocalDateTime.now();
-            from = now.toLocalDate().atStartOfDay();
+            from = now.toLocalDate()
+                    .atStartOfDay();
             to = now;
             logger.debug("Setting default period: from {} to {}", from, to);
         } else if (from != null && to == null) {
             to = LocalDateTime.now();
             logger.debug("Setting to = current time: {}", to);
         } else if (to != null && from == null) {
-            from = to.toLocalDate().atStartOfDay();
+            from = to.toLocalDate()
+                    .atStartOfDay();
             logger.debug("Setting from = start of day: {}", from);
         }
 
         try {
-            List<Object[]> results = timeEntryRepository.findTaskDurationsByUserAndPeriod(
-                    userId, from, to);
+            List<Object[]> results = timeEntryRepository.findTaskDurationsByUserAndPeriod(userId, from, to);
 
             logger.debug("Found {} task duration records", results.size());
 
@@ -172,24 +168,18 @@ public class TimeEntryService {
                             String title = (String) row[1];
                             long totalSeconds = ((Number) row[2]).longValue();
 
-                            LocalDateTime firstEntry = timeEntryRepository
-                                    .findFirstByUserIdAndTaskIdOrderByStartTimeAsc(userId, taskId)
-                                    .map(TimeEntry::getStartTime)
-                                    .orElse(null);
+                            LocalDateTime firstEntry =
+                                    timeEntryRepository.findFirstByUserIdAndTaskIdOrderByStartTimeAsc(userId, taskId)
+                                            .map(TimeEntry::getStartTime)
+                                            .orElse(null);
 
-                            return new TaskDurationDTO(
-                                    taskId,
-                                    title,
-                                    formatDuration(totalSeconds),
-                                    firstEntry
-                            );
+                            return new TaskDurationDTO(taskId, title, formatDuration(totalSeconds), firstEntry);
                         } catch (Exception e) {
                             logger.error("Error processing time entry data", e);
                             throw new IllegalArgumentException("Error processing time entry data", e);
                         }
                     })
-                    .sorted(Comparator.comparing(
-                            TaskDurationDTO::getFirstEntryTime,
+                    .sorted(Comparator.comparing(TaskDurationDTO::getFirstEntryTime,
                             Comparator.nullsLast(Comparator.naturalOrder())))
                     .toList();
         } catch (Exception e) {
@@ -200,53 +190,46 @@ public class TimeEntryService {
 
     private String formatDurationUserTimeIntervals(Duration duration) {
         long hours = duration.toHours();
-        long minutes = duration.minusHours(hours).toMinutes();
+        long minutes = duration.minusHours(hours)
+                .toMinutes();
         return String.format("%02d:%02d", hours, minutes);
     }
 
     public List<TimeIntervalDTO> getUserTimeIntervals(Long userId, LocalDateTime from, LocalDateTime to) {
         logger.info("Getting time intervals for user {} from {} to {}", userId, from, to);
 
-        // Установка периода по умолчанию
         if (from == null && to == null) {
             to = LocalDateTime.now();
             from = to.minusDays(7);
             logger.debug("Setting default period (last 7 days): from {} to {}", from, to);
         }
 
-        // Валидация периода
         if (from.isAfter(to)) {
             logger.error("Invalid period: from {} is after to {}", from, to);
             throw new IllegalArgumentException("Start date must be before end date");
         }
 
-        // Получаем записи из БД
-        List<TimeEntry> entries = timeEntryRepository
-                .findByUserAndStartTimeBetweenOrderByStartTime(getUser(userId), from, to);
+        List<TimeEntry> entries =
+                timeEntryRepository.findByUserAndStartTimeBetweenOrderByStartTime(getUser(userId), from, to);
 
         logger.debug("Found {} time entries for interval calculation", entries.size());
 
         List<TimeIntervalDTO> result = new ArrayList<>();
         LocalDateTime previousEnd = from;
 
-        // Обрабатываем интервалы
         for (TimeEntry entry : entries) {
             LocalDateTime entryStart = entry.getStartTime();
-            LocalDateTime entryEnd = entry.getEndTime() != null ?
-                    entry.getEndTime() : LocalDateTime.now();
+            LocalDateTime entryEnd = entry.getEndTime() != null ? entry.getEndTime() : LocalDateTime.now();
 
-            // Добавляем период неактивности перед текущей записью
             if (previousEnd.isBefore(entryStart)) {
                 addInactiveInterval(result, previousEnd, entryStart);
             }
 
-            // Добавляем период работы
             addActiveInterval(result, entry, entryStart, entryEnd);
 
             previousEnd = entryEnd.isAfter(previousEnd) ? entryEnd : previousEnd;
         }
 
-        // Добавляем последний период неактивности
         if (previousEnd.isBefore(to)) {
             addInactiveInterval(result, previousEnd, to);
         }
@@ -255,37 +238,22 @@ public class TimeEntryService {
         return result;
     }
 
-    private void addActiveInterval(List<TimeIntervalDTO> result,
-            TimeEntry entry,
-            LocalDateTime start,
+    private void addActiveInterval(
+            List<TimeIntervalDTO> result, TimeEntry entry, LocalDateTime start,
             LocalDateTime end) {
         Duration duration = Duration.between(start, end);
-        result.add(new TimeIntervalDTO(
-                formatDurationUserTimeIntervals(duration),
-                entry.getTask().getTitle(),
-                true,
-                start,
-                end
-        ));
+        result.add(new TimeIntervalDTO(formatDurationUserTimeIntervals(duration), entry.getTask()
+                .getTitle(), true, start, end));
     }
 
-    private void addInactiveInterval(List<TimeIntervalDTO> result,
-            LocalDateTime start,
-            LocalDateTime end) {
+    private void addInactiveInterval(List<TimeIntervalDTO> result, LocalDateTime start, LocalDateTime end) {
         Duration duration = Duration.between(start, end);
-        result.add(new TimeIntervalDTO(
-                formatDurationUserTimeIntervals(duration),
-                "Неактивность",
-                false,
-                start,
-                end
-        ));
+        result.add(new TimeIntervalDTO(formatDurationUserTimeIntervals(duration), "Неактивность", false, start, end));
     }
 
     public TotalWorkDurationDTO getTotalWorkDuration(Long userId, LocalDateTime from, LocalDateTime to) {
         logger.info("Getting total work duration for user {} from {} to {}", userId, from, to);
 
-        // Установка периода по умолчанию (текущая неделя)
         if (from == null && to == null) {
             to = LocalDateTime.now();
             from = to.minusDays(7);
@@ -298,7 +266,6 @@ public class TimeEntryService {
             logger.debug("Setting to = from + 7 days: {}", to);
         }
 
-        // Получаем сумму в секундах из БД
         Long totalSeconds = timeEntryRepository.sumWorkDurationByUserAndPeriod(userId, from, to);
         if (totalSeconds == null) {
             totalSeconds = 0L;
@@ -307,21 +274,12 @@ public class TimeEntryService {
             logger.debug("Total work duration in seconds: {}", totalSeconds);
         }
 
-        // Рассчитываем количество дней в периоде
-        long daysInPeriod = ChronoUnit.DAYS.between(
-                from.toLocalDate(),
-                to.toLocalDate()
-        ) + 1; // +1 чтобы включить оба крайних дня
+        long daysInPeriod =
+                ChronoUnit.DAYS.between(from.toLocalDate(), to.toLocalDate()) + 1; // +1 чтобы включить оба крайних дня
 
         logger.debug("Days in period: {}", daysInPeriod);
 
-        return new TotalWorkDurationDTO(
-                formatDuration(totalSeconds),
-                totalSeconds,
-                (int) daysInPeriod,
-                from,
-                to
-        );
+        return new TotalWorkDurationDTO(formatDuration(totalSeconds), totalSeconds, (int) daysInPeriod, from, to);
     }
 
     private String formatDuration(long totalSeconds) {
@@ -339,16 +297,15 @@ public class TimeEntryService {
                     return new ResourceNotFoundException("User not found with id: " + userId);
                 });
 
-        // 1. Удаление всех временных записей пользователя
         timeEntryRepository.deleteByUser(user);
         logger.info("Deleted time entries for user {}", userId);
 
-        // 2. Очистка связей задач (без удаления самих задач)
         List<Task> userTasks = taskRepository.findByUser(user);
         logger.debug("Clearing time entries for {} tasks of user {}", userTasks.size(), userId);
 
         userTasks.forEach(task -> {
-            task.getTimeEntries().clear();
+            task.getTimeEntries()
+                    .clear();
             taskRepository.save(task);
         });
     }
