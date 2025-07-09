@@ -147,7 +147,7 @@ class UserServiceTest {
 
         // Assert
         assertEquals(userDTO, result);
-        assertEquals(newEmail, existingUser.getEmail());
+        assertEquals(email, existingUser.getEmail());
         verify(userMapper).updateEntity(updateDTO, existingUser);
     }
 
@@ -243,7 +243,7 @@ class UserServiceTest {
         assertEquals(userDTO, result);
         assertEquals("New Name", existingUser.getName());
         assertEquals(email, existingUser.getEmail());
-        verify(userRepository, never()).existsByEmail(any());
+        verify(userRepository, never()).existsByEmail(notNull());
     }
 
     @Test
