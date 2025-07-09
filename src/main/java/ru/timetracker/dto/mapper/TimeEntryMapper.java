@@ -16,4 +16,14 @@ public interface TimeEntryMapper {
     @Mapping(target = "duration", source = ".", qualifiedByName = "calculateDuration")
     @Mapping(target = "active", source = ".", qualifiedByName = "checkActive")
     TimeEntryDTO toDTO(TimeEntry timeEntry);
+
+    @Named("calculateDuration")
+    default Duration calculateDuration(TimeEntry timeEntry) {
+        return timeEntry.getDuration();
+    }
+
+    @Named("checkActive")
+    default boolean checkActive(TimeEntry timeEntry) {
+        return timeEntry.isActive();
+    }
 }
