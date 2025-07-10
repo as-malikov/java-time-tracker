@@ -18,6 +18,21 @@ import ru.timetracker.repository.UserRepository;
 
 import java.util.List;
 
+/**
+ * Сервис для работы с пользователями системы.
+ * Обеспечивает основные CRUD операции, валидацию и бизнес-логику работы с пользователями.
+ *
+ * <p>Основные функции:
+ * <ul>
+ *   <li>Получение списка пользователей</li>
+ *   <li>Создание новых пользователей</li>
+ *   <li>Обновление данных пользователей</li>
+ *   <li>Полное удаление пользователей с зависимыми сущностями</li>
+ * </ul>
+ *
+ * @see UserRepository Репозиторий для работы с базой данных
+ * @see UserMapper Маппер для преобразования DTO/Entity
+ */
 @Service
 @Data
 public class UserService {
@@ -28,6 +43,11 @@ public class UserService {
     private final TaskRepository taskRepository;
     private final TimeEntryRepository timeEntryRepository;
 
+    /**
+     * Получает список всех пользователей системы
+     *
+     * @return Список DTO пользователей
+     */
     @Transactional(readOnly = true)
     public List<UserDTO> getAllUsers() {
         logger.debug("Request to fetch all users");
@@ -39,6 +59,13 @@ public class UserService {
         return users;
     }
 
+    /**
+     * Получает пользователя по идентификатору
+     *
+     * @param id ID пользователя
+     * @return DTO пользователя
+     * @throws ResourceNotFoundException если пользователь не найден
+     */
     @Transactional(readOnly = true)
     public UserDTO getUserById(Long id) {
         logger.debug("Request to fetch user with ID: {}", id);
@@ -47,6 +74,13 @@ public class UserService {
         return userDTO;
     }
 
+    /**
+     * Создает нового пользователя
+     *
+     * @param userCreateDTO DTO с данными для создания
+     * @return Созданный DTO пользователя
+     * @throws EmailAlreadyExistsException если email уже занят
+     */
     @Transactional
     public UserDTO createUser(UserCreateDTO userCreateDTO) {
         logger.debug("Attempting to create new user with email: {}", userCreateDTO.getEmail());
@@ -64,6 +98,15 @@ public class UserService {
         return userMapper.toDTO(user);
     }
 
+    /**
+     * Обновляет данные пользователя
+     *
+     * @param id            ID обновляемого пользователя
+     * @param userUpdateDTO DTO с новыми данными
+     * @return Обновленный DTO пользователя
+     * @throws ResourceNotFoundException   если пользователь не найден
+     * @throws EmailAlreadyExistsException если новый email уже занят
+     */
     @Transactional
     public UserDTO updateUser(Long id, UserUpdateDTO userUpdateDTO) {
         logger.debug("Attempting to update user with ID: {}", id);
@@ -83,6 +126,13 @@ public class UserService {
         return userMapper.toDTO(user);
     }
 
+    /**
+     * Получает сущность пользователя по ID (внутренний метод)
+     *
+     * @param id ID пользователя
+     * @return Сущность пользователя
+     * @throws ResourceNotFoundException если пользователь не найден
+     */
     @Transactional(readOnly = true)
     private User getUserEntity(Long id) {
         return userRepository.findById(id)
@@ -93,6 +143,12 @@ public class UserService {
                 });
     }
 
+    /**
+     * Полностью удаляет пользователя и все связанные данные
+     *
+     * @param userId ID удаляемого пользователя
+     * @throws ResourceNotFoundException если пользователь не найден
+     */
     @Transactional
     public void deleteUserCompletely(Long userId) {
         logger.debug("Attempting complete deletion of user with ID: {}", userId);

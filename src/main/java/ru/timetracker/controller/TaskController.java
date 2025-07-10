@@ -22,6 +22,24 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 
+/**
+ * Контроллер для управления задачами пользователей.
+ * Предоставляет REST API для операций с задачами конкретного пользователя.
+ * Базовый путь: /api/v1/users/{userId}/tasks
+ *
+ * <p>Поддерживаемые операции:
+ * <ul>
+ *   <li>Получение списка задач (с фильтрацией по статусу)</li>
+ *   <li>Получение конкретной задачи</li>
+ *   <li>Создание новой задачи</li>
+ *   <li>Обновление задачи</li>
+ *   <li>Изменение статуса задачи (активная/неактивная)</li>
+ *   <li>Удаление задач (одной или всех)</li>
+ * </ul>
+ *
+ * @see TaskService Сервис для работы с задачами
+ * @see TaskDTO DTO для передачи данных о задаче
+ */
 @Data
 @RestController
 @RequestMapping(path = "/api/v1/users/{userId}/tasks")
@@ -30,6 +48,13 @@ public class TaskController {
     private static final Logger logger = LogManager.getLogger(TaskController.class);
     private final TaskService taskService;
 
+    /**
+     * Получает список задач пользователя
+     *
+     * @param userId          ID пользователя (обязательный)
+     * @param includeInactive включать ли неактивные задачи (по умолчанию false)
+     * @return список задач с статусом 200 OK или 500 при ошибке
+     */
     @Operation(summary = "Get user tasks",
                description = "Retrieves all tasks for a specific user, with option to include inactive tasks")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Tasks retrieved successfully",
@@ -56,6 +81,13 @@ public class TaskController {
         }
     }
 
+    /**
+     * Получает конкретную задачу пользователя
+     *
+     * @param userId ID пользователя-владельца (обязательный)
+     * @param taskId ID задачи (обязательный)
+     * @return данные задачи с статусом 200 OK или 404/500 при ошибках
+     */
     @Operation(summary = "Get task by ID", description = "Retrieves a specific task for a user by task ID")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Task found",
                                         content = @Content(mediaType = "application/json",
@@ -80,6 +112,13 @@ public class TaskController {
         }
     }
 
+    /**
+     * Создает новую задачу для пользователя
+     *
+     * @param userId        ID пользователя-владельца (обязательный)
+     * @param taskCreateDTO данные для создания задачи (валидируются)
+     * @return созданная задача с статусом 201 Created или 400/404/500 при ошибках
+     */
     @Operation(summary = "Create new task", description = "Creates a new task for the specified user")
     @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "Task created successfully",
                                         content = @Content(mediaType = "application/json",
@@ -107,6 +146,14 @@ public class TaskController {
         }
     }
 
+    /**
+     * Обновляет существующую задачу
+     *
+     * @param userId        ID пользователя-владельца (обязательный)
+     * @param taskId        ID обновляемой задачи (обязательный)
+     * @param taskUpdateDTO новые данные задачи (валидируются)
+     * @return обновленная задача с статусом 200 OK или 400/404/500 при ошибках
+     */
     @Operation(summary = "Update task", description = "Updates an existing task for a user")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Task updated successfully",
                                         content = @Content(mediaType = "application/json",
@@ -134,6 +181,13 @@ public class TaskController {
         }
     }
 
+    /**
+     * Переключает статус задачи (активная/неактивная)
+     *
+     * @param userId ID пользователя-владельца (обязательный)
+     * @param taskId ID задачи (обязательный)
+     * @return задача с новым статусом и статусом 200 OK или 404/500 при ошибках
+     */
     @Operation(summary = "Toggle task status", description = "Toggles the active/inactive status of a task")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Task status toggled successfully",
                                         content = @Content(mediaType = "application/json",
@@ -158,6 +212,13 @@ public class TaskController {
         }
     }
 
+    /**
+     * Удаляет конкретную задачу пользователя
+     *
+     * @param userId ID пользователя-владельца (обязательный)
+     * @param taskId ID удаляемой задачи (обязательный)
+     * @return статус 204 No Content при успехе или 404/500 при ошибках
+     */
     @Operation(summary = "Delete task", description = "Permanently deletes a task")
     @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "Task deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Task or user not found"),
@@ -181,6 +242,12 @@ public class TaskController {
         }
     }
 
+    /**
+     * Удаляет все задачи пользователя
+     *
+     * @param userId ID пользователя (обязательный)
+     * @return статус 204 No Content при успехе или 404/500 при ошибках
+     */
     @Operation(summary = "Delete all tasks for user",
                description = "Permanently removes all tasks associated with the specified user ID")
     @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "Tasks successfully deleted"),

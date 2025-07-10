@@ -18,6 +18,22 @@ import ru.timetracker.repository.UserRepository;
 
 import java.util.List;
 
+/**
+ * Сервис для работы с задачами пользователей.
+ * Обеспечивает создание, получение, обновление и удаление задач,
+ * а также управление их статусом (активные/неактивные).
+ *
+ * <p>Основные функции:
+ * <ul>
+ *   <li>Управление жизненным циклом задач</li>
+ *   <li>Валидация данных задач</li>
+ *   <li>Фильтрация задач по статусу</li>
+ *   <li>Полное удаление задач пользователя</li>
+ * </ul>
+ *
+ * @see TaskRepository Репозиторий для работы с задачами
+ * @see TaskMapper Маппер для преобразования DTO/Entity
+ */
 @Service
 @Data
 public class TaskService {
@@ -28,6 +44,13 @@ public class TaskService {
     private final TaskMapper taskMapper;
     private final TaskRepository timeEntryRepository;
 
+    /**
+     * Получает список задач пользователя
+     *
+     * @param userId          ID пользователя (обязательный)
+     * @param includeInactive включать ли неактивные задачи
+     * @return Список DTO задач
+     */
     @Transactional(readOnly = true)
     public List<TaskDTO> getUserTasks(Long userId, boolean includeInactive) {
         logger.debug("Fetching tasks for user ID: {}, includeInactive: {}", userId, includeInactive);
@@ -39,6 +62,14 @@ public class TaskService {
         return tasks;
     }
 
+    /**
+     * Получает конкретную задачу пользователя
+     *
+     * @param userId ID пользователя (обязательный)
+     * @param taskId ID задачи (обязательный)
+     * @return DTO задачи
+     * @throws ResourceNotFoundException если задача не найдена
+     */
     @Transactional(readOnly = true)
     public TaskDTO getTaskById(Long userId, Long taskId) {
         logger.debug("Looking for task ID: {} for user ID: {}", taskId, userId);
@@ -52,6 +83,15 @@ public class TaskService {
         return taskMapper.toDTO(task);
     }
 
+    /**
+     * Создает новую задачу для пользователя
+     *
+     * @param userId        ID пользователя (обязательный)
+     * @param taskCreateDTO DTO с данными для создания задачи
+     * @return Созданная DTO задачи
+     * @throws ResourceNotFoundException  если пользователь не найден
+     * @throws TaskAlreadyExistsException если задача с таким названием уже существует
+     */
     @Transactional
     public TaskDTO createTask(Long userId, TaskCreateDTO taskCreateDTO) {
         logger.debug("Creating new task for user ID: {}. Data: {}", userId, taskCreateDTO);
@@ -77,6 +117,15 @@ public class TaskService {
         return taskMapper.toDTO(task);
     }
 
+    /**
+     * Обновляет существующую задачу
+     *
+     * @param taskId        ID задачи (обязательный)
+     * @param userId        ID пользователя (обязательный)
+     * @param taskUpdateDTO DTO с обновленными данными задачи
+     * @return Обновленная DTO задачи
+     * @throws ResourceNotFoundException если задача не найдена
+     */
     @Transactional
     public TaskDTO updateTask(Long taskId, Long userId, TaskUpdateDTO taskUpdateDTO) {
         logger.debug("Updating task ID: {} for user ID: {}. Data: {}", taskId, userId, taskUpdateDTO);
@@ -100,6 +149,14 @@ public class TaskService {
         return taskMapper.toDTO(task);
     }
 
+    /**
+     * Изменяет статус задачи (активная/неактивная)
+     *
+     * @param taskId ID задачи (обязательный)
+     * @param userId ID пользователя (обязательный)
+     * @return DTO задачи с новым статусом
+     * @throws ResourceNotFoundException если задача не найдена
+     */
     @Transactional
     public TaskDTO toggleTaskStatus(Long taskId, Long userId) {
         logger.debug("Toggling status for task ID: {} for user ID: {}", taskId, userId);
@@ -120,6 +177,13 @@ public class TaskService {
         return taskMapper.toDTO(task);
     }
 
+    /**
+     * Удаляет конкретную задачу пользователя
+     *
+     * @param taskId ID задачи (обязательный)
+     * @param userId ID пользователя (обязательный)
+     * @throws ResourceNotFoundException если задача не найдена
+     */
     @Transactional
     public void deleteTask(Long taskId, Long userId) {
         logger.debug("Deleting task ID: {} for user ID: {}", taskId, userId);
@@ -135,6 +199,12 @@ public class TaskService {
         logger.info("Deleted task ID: {} for user ID: {}", taskId, userId);
     }
 
+    /**
+     * Полностью удаляет все задачи пользователя
+     *
+     * @param userId ID пользователя (обязательный)
+     * @throws ResourceNotFoundException если пользователь не найден
+     */
     public void deleteTasksCompletely(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> {

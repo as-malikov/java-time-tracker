@@ -7,14 +7,47 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * DTO для передачи данных об общем времени работы за период.
+ * Содержит информацию в различных форматах для аналитики.
+ */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class TotalWorkDurationDTO {
-    private String totalDuration; // Суммарное время в формате "чч:мм"
-    private long totalSeconds; // Суммарное время в секундах (для сортировки/аналитики)
-    private int days; // Количество дней в периоде
+    /**
+     * Суммарное время в формате "чч:мм"
+     *
+     * @return Форматированная длительность
+     */
+    private String totalDuration;
+
+    /**
+     * Суммарное время в секундах
+     *
+     * @return Длительность в секундах (для вычислений)
+     */
+    private long totalSeconds;
+
+    /**
+     * Количество дней в анализируемом периоде
+     *
+     * @return Число дней
+     */
+    private int days;
+
+    /**
+     * Начало анализируемого периода
+     *
+     * @return Дата и время начала
+     */
     private LocalDateTime periodStart;
+
+    /**
+     * Окончание анализируемого периода
+     *
+     * @return Дата и время окончания
+     */
     private LocalDateTime periodEnd;
 }

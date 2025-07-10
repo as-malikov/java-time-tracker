@@ -29,11 +29,38 @@ REST API для учета рабочего времени, управления
 1. Клонировать репозиторий
 2. Настроить подключение к БД в `application.properties`:
 
+Postgresql
+
 ```properties
 spring.datasource.url=jdbc:postgresql://localhost:5432/timetracker
 spring.datasource.username=ваш_логин
 spring.datasource.password=ваш_пароль
 ```
+
+H2
+
+```properties
+# H2 Database
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.datasource.driver-class-name=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=password
+# H2 Console
+spring.h2.console.enabled=true
+spring.h2.console.path=/h2-console
+# JPA/Hibernate
+spring.jpa.show-sql=true
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.properties.hibernate.format_sql=true
+```
+
+3. Запуск Javadoc
+
+```bash
+mvn javadoc:javadoc
+```
+
+Документация появится в **target/site/apidocs/index.html**.
 
 ## Форматы данных
 

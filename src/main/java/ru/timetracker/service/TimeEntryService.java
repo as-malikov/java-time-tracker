@@ -29,6 +29,23 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * Сервис для работы с записями времени и трекингом рабочего времени.
+ * Обеспечивает функциональность старта/останова трекинга, получения статистики
+ * и аналитики по рабочему времени пользователей.
+ *
+ * <p>Основные функции:
+ * <ul>
+ *   <li>Трекинг времени работы над задачами</li>
+ *   <li>Анализ временных интервалов работы</li>
+ *   <li>Расчет продолжительности работы по задачам</li>
+ *   <li>Получение общей статистики рабочего времени</li>
+ *   <li>Очистка данных трекинга</li>
+ * </ul>
+ *
+ * @see TimeEntryRepository Репозиторий для работы с записями времени
+ * @see TimeEntryMapper Маппер для преобразования DTO/Entity
+ */
 @Service
 @Data
 @AllArgsConstructor
@@ -41,6 +58,14 @@ public class TimeEntryService {
     private final TaskRepository taskRepository;
     private final TimeEntryMapper timeEntryMapper;
 
+    /**
+     * Начинает новую запись времени для задачи пользователя
+     *
+     * @param userId ID пользователя (обязательный)
+     * @param dto    DTO с данными для старта трекинга (обязательный)
+     * @return Созданная запись времени
+     * @throws ResourceNotFoundException если пользователь или задача не найдены
+     */
     @Transactional
     public TimeEntryDTO startTimeEntry(Long userId, TimeEntryCreateDTO dto) {
         logger.info("Starting time entry for user {} and task {}", userId, dto.getTaskId());
@@ -70,6 +95,13 @@ public class TimeEntryService {
         return timeEntryMapper.toDTO(entry);
     }
 
+    /**
+     * Останавливает активную запись времени пользователя
+     *
+     * @param userId ID пользователя (обязательный)
+     * @return Остановленная запись времени
+     * @throws IllegalStateException если нет активной записи времени
+     */
     @Transactional
     public TimeEntryDTO stopTimeEntry(Long userId) {
         logger.info("Stopping time entry for user {}", userId);
@@ -86,6 +118,14 @@ public class TimeEntryService {
         return timeEntryMapper.toDTO(entry);
     }
 
+    /**
+     * Получает записи времени пользователя за период
+     *
+     * @param userId ID пользователя (обязательный)
+     * @param from   Начало периода (необязательный)
+     * @param to     Конец периода (необязательный)
+     * @return Список записей времени
+     */
     @Transactional(readOnly = true)
     public List<TimeEntryDTO> getUserTimeEntries(Long userId, LocalDateTime from, LocalDateTime to) {
         logger.info("Getting time entries for user {} from {} to {}", userId, from, to);
@@ -133,6 +173,15 @@ public class TimeEntryService {
                 });
     }
 
+    /**
+     * Получает суммарное время работы по задачам за период
+     *
+     * @param userId ID пользователя (обязательный)
+     * @param from   Начало периода (необязательный)
+     * @param to     Конец периода (необязательный)
+     * @return Список продолжительностей по задачам
+     * @throws IllegalArgumentException если некорректный период
+     */
     public List<TaskDurationDTO> getUserTaskDurations(Long userId, LocalDateTime from, LocalDateTime to) {
         logger.info("Getting task durations for user {} from {} to {}", userId, from, to);
 
@@ -188,6 +237,7 @@ public class TimeEntryService {
         }
     }
 
+
     private String formatDurationUserTimeIntervals(Duration duration) {
         long hours = duration.toHours();
         long minutes = duration.minusHours(hours)
@@ -195,6 +245,15 @@ public class TimeEntryService {
         return String.format("%02d:%02d", hours, minutes);
     }
 
+    /**
+     * Получает временные интервалы работы/неактивности за период
+     *
+     * @param userId ID пользователя (обязательный)
+     * @param from   Начало периода (необязательный)
+     * @param to     Конец периода (необязательный)
+     * @return Список интервалов
+     * @throws IllegalArgumentException если некорректный период
+     */
     public List<TimeIntervalDTO> getUserTimeIntervals(Long userId, LocalDateTime from, LocalDateTime to) {
         logger.info("Getting time intervals for user {} from {} to {}", userId, from, to);
 
@@ -251,6 +310,14 @@ public class TimeEntryService {
         result.add(new TimeIntervalDTO(formatDurationUserTimeIntervals(duration), "Неактивность", false, start, end));
     }
 
+    /**
+     * Получает общее время работы за период
+     *
+     * @param userId ID пользователя (обязательный)
+     * @param from   Начало периода (необязательный)
+     * @param to     Конец периода (необязательный)
+     * @return Общая продолжительность работы
+     */
     public TotalWorkDurationDTO getTotalWorkDuration(Long userId, LocalDateTime from, LocalDateTime to) {
         logger.info("Getting total work duration for user {} from {} to {}", userId, from, to);
 
@@ -288,6 +355,12 @@ public class TimeEntryService {
         return String.format("%02d:%02d", hours, minutes);
     }
 
+    /**
+     * Полностью очищает данные трекинга пользователя
+     *
+     * @param userId ID пользователя (обязательный)
+     * @throws ResourceNotFoundException если пользователь не найден
+     */
     @Transactional
     public void clearUserTrackingData(Long userId) {
         logger.info("Clearing tracking data for user {}", userId);

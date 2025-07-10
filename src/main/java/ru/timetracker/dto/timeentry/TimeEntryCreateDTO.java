@@ -6,11 +6,19 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO для создания новой записи времени.
+ * Содержит минимальные данные для старта трекинга времени.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class TimeEntryCreateDTO {
-    @NotNull
-    private Long taskId;
+    /**
+     * ID задачи, для которой создается запись времени
+     *
+     * @return ID задачи (обязательное поле)
+     */
+    @NotNull private Long taskId;
 }
