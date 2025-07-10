@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class TimeIntervalDTO {
     /**
      * Продолжительность интервала в формате "чч:мм"
