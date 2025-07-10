@@ -33,7 +33,6 @@ import java.util.List;
  * Сервис для работы с записями времени и трекингом рабочего времени.
  * Обеспечивает функциональность старта/останова трекинга, получения статистики
  * и аналитики по рабочему времени пользователей.
- *
  * <p>Основные функции:
  * <ul>
  *   <li>Трекинг времени работы над задачами</li>
@@ -42,13 +41,11 @@ import java.util.List;
  *   <li>Получение общей статистики рабочего времени</li>
  *   <li>Очистка данных трекинга</li>
  * </ul>
- *
  * @see TimeEntryRepository Репозиторий для работы с записями времени
  * @see TimeEntryMapper Маппер для преобразования DTO/Entity
  */
 @Service
 @Data
-@AllArgsConstructor
 @Builder
 public class TimeEntryService {
     private static final Logger logger = LogManager.getLogger(TimeEntryService.class);
@@ -59,10 +56,25 @@ public class TimeEntryService {
     private final TimeEntryMapper timeEntryMapper;
 
     /**
+     * Конструктор сервиса временных записей.
+     * @param timeEntryRepository репозиторий для работы с временными записями
+     * @param userRepository репозиторий пользователей
+     * @param taskRepository репозиторий задач
+     * @param timeEntryMapper маппер для преобразования DTO
+     */
+    public TimeEntryService(
+            TimeEntryRepository timeEntryRepository, UserRepository userRepository, TaskRepository taskRepository,
+            TimeEntryMapper timeEntryMapper) {
+        this.timeEntryRepository = timeEntryRepository;
+        this.userRepository = userRepository;
+        this.taskRepository = taskRepository;
+        this.timeEntryMapper = timeEntryMapper;
+    }
+
+    /**
      * Начинает новую запись времени для задачи пользователя
-     *
      * @param userId ID пользователя (обязательный)
-     * @param dto    DTO с данными для старта трекинга (обязательный)
+     * @param dto DTO с данными для старта трекинга (обязательный)
      * @return Созданная запись времени
      * @throws ResourceNotFoundException если пользователь или задача не найдены
      */
@@ -97,7 +109,6 @@ public class TimeEntryService {
 
     /**
      * Останавливает активную запись времени пользователя
-     *
      * @param userId ID пользователя (обязательный)
      * @return Остановленная запись времени
      * @throws IllegalStateException если нет активной записи времени
@@ -120,10 +131,9 @@ public class TimeEntryService {
 
     /**
      * Получает записи времени пользователя за период
-     *
      * @param userId ID пользователя (обязательный)
-     * @param from   Начало периода (необязательный)
-     * @param to     Конец периода (необязательный)
+     * @param from Начало периода (необязательный)
+     * @param to Конец периода (необязательный)
      * @return Список записей времени
      */
     @Transactional(readOnly = true)
@@ -175,10 +185,9 @@ public class TimeEntryService {
 
     /**
      * Получает суммарное время работы по задачам за период
-     *
      * @param userId ID пользователя (обязательный)
-     * @param from   Начало периода (необязательный)
-     * @param to     Конец периода (необязательный)
+     * @param from Начало периода (необязательный)
+     * @param to Конец периода (необязательный)
      * @return Список продолжительностей по задачам
      * @throws IllegalArgumentException если некорректный период
      */
@@ -247,10 +256,9 @@ public class TimeEntryService {
 
     /**
      * Получает временные интервалы работы/неактивности за период
-     *
      * @param userId ID пользователя (обязательный)
-     * @param from   Начало периода (необязательный)
-     * @param to     Конец периода (необязательный)
+     * @param from Начало периода (необязательный)
+     * @param to Конец периода (необязательный)
      * @return Список интервалов
      * @throws IllegalArgumentException если некорректный период
      */
@@ -312,10 +320,9 @@ public class TimeEntryService {
 
     /**
      * Получает общее время работы за период
-     *
      * @param userId ID пользователя (обязательный)
-     * @param from   Начало периода (необязательный)
-     * @param to     Конец периода (необязательный)
+     * @param from Начало периода (необязательный)
+     * @param to Конец периода (необязательный)
      * @return Общая продолжительность работы
      */
     public TotalWorkDurationDTO getTotalWorkDuration(Long userId, LocalDateTime from, LocalDateTime to) {
@@ -357,7 +364,6 @@ public class TimeEntryService {
 
     /**
      * Полностью очищает данные трекинга пользователя
-     *
      * @param userId ID пользователя (обязательный)
      * @throws ResourceNotFoundException если пользователь не найден
      */

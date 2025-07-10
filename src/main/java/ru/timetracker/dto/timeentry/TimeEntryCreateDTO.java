@@ -12,13 +12,17 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 @Builder
 public class TimeEntryCreateDTO {
     /**
      * ID задачи, для которой создается запись времени
-     *
      * @return ID задачи (обязательное поле)
      */
     @NotNull private Long taskId;
+
+    /**
+     * Конструктор по умолчанию, необходимый для Javadoc.
+     */
+    public TimeEntryCreateDTO() {
+    }
 }

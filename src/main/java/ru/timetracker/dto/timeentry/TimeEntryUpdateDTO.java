@@ -12,8 +12,13 @@ import java.time.LocalDateTime;
 public class TimeEntryUpdateDTO {
     /**
      * Время окончания работы
-     *
      * @return Дата и время окончания
      */
     private LocalDateTime endTime;
+
+    /**
+     * Конструктор по умолчанию, необходимый для Javadoc.
+     */
+    public TimeEntryUpdateDTO() {
+    }
 }

@@ -1,6 +1,7 @@
 package ru.timetracker.service;
 
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,6 @@ import java.util.List;
 /**
  * Сервис для работы с пользователями системы.
  * Обеспечивает основные CRUD операции, валидацию и бизнес-логику работы с пользователями.
- *
  * <p>Основные функции:
  * <ul>
  *   <li>Получение списка пользователей</li>
@@ -29,7 +29,6 @@ import java.util.List;
  *   <li>Обновление данных пользователей</li>
  *   <li>Полное удаление пользователей с зависимыми сущностями</li>
  * </ul>
- *
  * @see UserRepository Репозиторий для работы с базой данных
  * @see UserMapper Маппер для преобразования DTO/Entity
  */
@@ -44,8 +43,23 @@ public class UserService {
     private final TimeEntryRepository timeEntryRepository;
 
     /**
+     * Конструктор сервиса пользователей.
+     * @param userRepository репозиторий пользователей
+     * @param userMapper маппер для преобразования DTO
+     * @param taskRepository репозиторий задач
+     * @param timeEntryRepository репозиторий временных записей
+     */
+    public UserService(
+            UserRepository userRepository, UserMapper userMapper, TaskRepository taskRepository,
+            TimeEntryRepository timeEntryRepository) {
+        this.userRepository = userRepository;
+        this.userMapper = userMapper;
+        this.taskRepository = taskRepository;
+        this.timeEntryRepository = timeEntryRepository;
+    }
+
+    /**
      * Получает список всех пользователей системы
-     *
      * @return Список DTO пользователей
      */
     @Transactional(readOnly = true)
@@ -61,7 +75,6 @@ public class UserService {
 
     /**
      * Получает пользователя по идентификатору
-     *
      * @param id ID пользователя
      * @return DTO пользователя
      * @throws ResourceNotFoundException если пользователь не найден
@@ -76,7 +89,6 @@ public class UserService {
 
     /**
      * Создает нового пользователя
-     *
      * @param userCreateDTO DTO с данными для создания
      * @return Созданный DTO пользователя
      * @throws EmailAlreadyExistsException если email уже занят
@@ -100,11 +112,10 @@ public class UserService {
 
     /**
      * Обновляет данные пользователя
-     *
-     * @param id            ID обновляемого пользователя
+     * @param id ID обновляемого пользователя
      * @param userUpdateDTO DTO с новыми данными
      * @return Обновленный DTO пользователя
-     * @throws ResourceNotFoundException   если пользователь не найден
+     * @throws ResourceNotFoundException если пользователь не найден
      * @throws EmailAlreadyExistsException если новый email уже занят
      */
     @Transactional
@@ -128,7 +139,6 @@ public class UserService {
 
     /**
      * Получает сущность пользователя по ID (внутренний метод)
-     *
      * @param id ID пользователя
      * @return Сущность пользователя
      * @throws ResourceNotFoundException если пользователь не найден
@@ -145,7 +155,6 @@ public class UserService {
 
     /**
      * Полностью удаляет пользователя и все связанные данные
-     *
      * @param userId ID удаляемого пользователя
      * @throws ResourceNotFoundException если пользователь не найден
      */

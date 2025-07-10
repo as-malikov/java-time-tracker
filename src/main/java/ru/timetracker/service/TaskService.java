@@ -14,6 +14,7 @@ import ru.timetracker.exception.TaskAlreadyExistsException;
 import ru.timetracker.model.Task;
 import ru.timetracker.model.User;
 import ru.timetracker.repository.TaskRepository;
+import ru.timetracker.repository.TimeEntryRepository;
 import ru.timetracker.repository.UserRepository;
 
 import java.util.List;
@@ -22,7 +23,6 @@ import java.util.List;
  * Сервис для работы с задачами пользователей.
  * Обеспечивает создание, получение, обновление и удаление задач,
  * а также управление их статусом (активные/неактивные).
- *
  * <p>Основные функции:
  * <ul>
  *   <li>Управление жизненным циклом задач</li>
@@ -30,7 +30,6 @@ import java.util.List;
  *   <li>Фильтрация задач по статусу</li>
  *   <li>Полное удаление задач пользователя</li>
  * </ul>
- *
  * @see TaskRepository Репозиторий для работы с задачами
  * @see TaskMapper Маппер для преобразования DTO/Entity
  */
@@ -42,12 +41,22 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final TaskMapper taskMapper;
-    private final TaskRepository timeEntryRepository;
+
+    /**
+     * Конструктор сервиса задач.
+     * @param taskRepository репозиторий для работы с задачами
+     * @param userRepository репозиторий пользователей
+     * @param taskMapper маппер для преобразования задач
+     */
+    public TaskService(TaskRepository taskRepository, UserRepository userRepository, TaskMapper taskMapper) {
+        this.taskRepository = taskRepository;
+        this.userRepository = userRepository;
+        this.taskMapper = taskMapper;
+    }
 
     /**
      * Получает список задач пользователя
-     *
-     * @param userId          ID пользователя (обязательный)
+     * @param userId ID пользователя (обязательный)
      * @param includeInactive включать ли неактивные задачи
      * @return Список DTO задач
      */
@@ -64,7 +73,6 @@ public class TaskService {
 
     /**
      * Получает конкретную задачу пользователя
-     *
      * @param userId ID пользователя (обязательный)
      * @param taskId ID задачи (обязательный)
      * @return DTO задачи
@@ -85,11 +93,10 @@ public class TaskService {
 
     /**
      * Создает новую задачу для пользователя
-     *
-     * @param userId        ID пользователя (обязательный)
+     * @param userId ID пользователя (обязательный)
      * @param taskCreateDTO DTO с данными для создания задачи
      * @return Созданная DTO задачи
-     * @throws ResourceNotFoundException  если пользователь не найден
+     * @throws ResourceNotFoundException если пользователь не найден
      * @throws TaskAlreadyExistsException если задача с таким названием уже существует
      */
     @Transactional
@@ -119,9 +126,8 @@ public class TaskService {
 
     /**
      * Обновляет существующую задачу
-     *
-     * @param taskId        ID задачи (обязательный)
-     * @param userId        ID пользователя (обязательный)
+     * @param taskId ID задачи (обязательный)
+     * @param userId ID пользователя (обязательный)
      * @param taskUpdateDTO DTO с обновленными данными задачи
      * @return Обновленная DTO задачи
      * @throws ResourceNotFoundException если задача не найдена
@@ -151,7 +157,6 @@ public class TaskService {
 
     /**
      * Изменяет статус задачи (активная/неактивная)
-     *
      * @param taskId ID задачи (обязательный)
      * @param userId ID пользователя (обязательный)
      * @return DTO задачи с новым статусом
@@ -179,7 +184,6 @@ public class TaskService {
 
     /**
      * Удаляет конкретную задачу пользователя
-     *
      * @param taskId ID задачи (обязательный)
      * @param userId ID пользователя (обязательный)
      * @throws ResourceNotFoundException если задача не найдена
@@ -201,7 +205,6 @@ public class TaskService {
 
     /**
      * Полностью удаляет все задачи пользователя
-     *
      * @param userId ID пользователя (обязательный)
      * @throws ResourceNotFoundException если пользователь не найден
      */
@@ -211,7 +214,7 @@ public class TaskService {
                     String errorMessage = "User with ID " + userId + " not found";
                     return new ResourceNotFoundException(errorMessage);
                 });
-        timeEntryRepository.deleteByUser(user);
+        taskRepository.deleteByUser(user);
         taskRepository.deleteByUser(user);
     }
 }
