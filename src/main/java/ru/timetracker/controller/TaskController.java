@@ -58,7 +58,7 @@ public class TaskController {
      * Получает список задач пользователя
      * @param userId ID пользователя (обязательный)
      * @param includeInactive включать ли неактивные задачи (по умолчанию false)
-     * @return список задач с статусом 200 OK или 500 при ошибке
+     * @return список задач со статусом 200 OK или 500 при ошибке
      */
     @Operation(summary = "Get user tasks",
                description = "Retrieves all tasks for a specific user, with option to include inactive tasks")
@@ -90,7 +90,7 @@ public class TaskController {
      * Получает конкретную задачу пользователя
      * @param userId ID пользователя-владельца (обязательный)
      * @param taskId ID задачи (обязательный)
-     * @return данные задачи с статусом 200 OK или 404/500 при ошибках
+     * @return данные задачи со статусом 200 OK или 404/500 при ошибках
      */
     @Operation(summary = "Get task by ID", description = "Retrieves a specific task for a user by task ID")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Task found",
@@ -120,7 +120,7 @@ public class TaskController {
      * Создает новую задачу для пользователя
      * @param userId ID пользователя-владельца (обязательный)
      * @param taskCreateDTO данные для создания задачи (валидируются)
-     * @return созданная задача с статусом 201 Created или 400/404/500 при ошибках
+     * @return созданная задача со статусом 201 Created или 400/404/500 при ошибках
      */
     @Operation(summary = "Create new task", description = "Creates a new task for the specified user")
     @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "Task created successfully",
@@ -154,7 +154,7 @@ public class TaskController {
      * @param userId ID пользователя-владельца (обязательный)
      * @param taskId ID обновляемой задачи (обязательный)
      * @param taskUpdateDTO новые данные задачи (валидируются)
-     * @return обновленная задача с статусом 200 OK или 400/404/500 при ошибках
+     * @return обновленная задача со статусом 200 OK или 400/404/500 при ошибках
      */
     @Operation(summary = "Update task", description = "Updates an existing task for a user")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Task updated successfully",

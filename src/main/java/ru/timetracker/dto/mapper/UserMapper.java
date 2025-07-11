@@ -37,6 +37,7 @@ public interface UserMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "tasks", ignore = true)
     @Mapping(target = "timeEntries", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
     User toEntity(UserCreateDTO userCreateDTO);
 
     /**

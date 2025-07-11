@@ -4,7 +4,16 @@
 
 1. [Общее описание](#общее-описание)
 2. [Требования](#требования)
+     - [Основные требования](#основные-требования)
+     - [Технологии и фреймворки](#технологии-и-фреймворки)
+     - [Тестирование](#тестирование)
 3. [Установка и запуск](#установка-и-запуск)
+    - [Клонирование репозитория](#1-клонирование-репозитория)
+    - [Настройка базы данных](#2-настройка-базы-данных-)
+    - [Сборка и запуск приложения](#3-сборка-и-запуск-приложения)
+    - [Тестирование и покрытие кода](#4-тестирование-и-покрытие-кода)
+    - [Генерация документации](#5-генерация-документации)
+    - [Настройка логирования](#6-настройка-логирования)
 4. [Форматы данных](#форматы-данных)
 5. [Документация API](#документация-api)
     - [Пользователи](#пользователи)
@@ -19,48 +28,109 @@
 REST API для учета рабочего времени, управления задачами и пользователями. Не требует аутентификации.
 
 ## Требования
-
-- Java 17+
-- Maven 3.6+
-- PostgreSQL 12+
+### Основные требования
+* Java 21 (указано в <java.version>21</java.version>)
+* Maven 3.6+ (рекомендуется последняя версия)
+* PostgreSQL 14+ (основная СУБД) или H2 Database (для тестирования/разработки)
+### Технологии и фреймворки
+* Spring Boot 3.5.3 (родительский POM)
+* Spring Data JPA (для работы с БД)
+* Spring Web MVC (REST API)
+* Spring Validation (валидация данных)
+* Lombok 1.18.38 (генерация boilerplate-кода)
+* MapStruct 1.6.3 (маппинг DTO ↔ Entity)
+* Hibernate Validator 8.0.1 (валидация сущностей)
+* Springdoc OpenAPI 2.5.0 (документация API)
+* Log4j2 2.20.0 (логирование)
+### Тестирование
+* JUnit 5 (основной фреймворк тестирования)
+* Mockito 5.18.0 (мокирование зависимостей)
+* JaCoCo 0.8.11 (анализ покрытия кода)
 
 ## Установка и запуск
 
-1. Клонировать репозиторий
-2. Настроить подключение к БД в `application.properties`:
+### 1. Клонирование репозитория
+```bash
+git clone https://github.com/as-malikov/java-time-tracker.git
+cd java-time-tracker
+```
 
-Postgresql
+### 2. Настройка базы данных  
+```src/main/resources/application.properties:```
 
+#### Для PostgreSQL
 ```properties
+# Основные настройки
 spring.datasource.url=jdbc:postgresql://localhost:5432/timetracker
 spring.datasource.username=ваш_логин
 spring.datasource.password=ваш_пароль
+spring.jpa.hibernate.ddl-auto=update
+
+# Дополнительные настройки
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
 ```
 
-H2
-
+#### Для H2 (встроенная БД)
 ```properties
-# H2 Database
+# Настройки H2
 spring.datasource.url=jdbc:h2:mem:testdb
 spring.datasource.driver-class-name=org.h2.Driver
 spring.datasource.username=sa
 spring.datasource.password=password
-# H2 Console
+
+# Консоль H2 (доступна по http://localhost:8080/h2-console)
 spring.h2.console.enabled=true
 spring.h2.console.path=/h2-console
-# JPA/Hibernate
+
+# Настройки JPA
 spring.jpa.show-sql=true
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.properties.hibernate.format_sql=true
 ```
 
-3. Запуск Javadoc
+### 3. Сборка и запуск приложения
+#### Сборка проекта:
+```bash
+mvn clean install
+```
+#### Запуск приложения:
+```bash
+java -jar time-tracker-0.0.1-SNAPSHOT.jar
+```
+Приложение будет доступно по адресу:  
+```http://localhost:8080```
 
+### 4. Тестирование и покрытие кода
+#### Запуск unit-тестов:
+```bash 
+mvn clean test
+```
+#### Генерация отчета о покрытии кода (JaCoCo):
+```bash
+mvn jacoco:report
+```
+Отчет будет доступен по пути:  
+```target/site/jacoco/index.html```
+
+### 5. Генерация документации
+#### Создание Javadoc:
 ```bash
 mvn javadoc:javadoc
 ```
-
-Документация появится в **target/site/apidocs/index.html**.
+Документация будет доступна по пути:  
+```target/site/apidocs/index.html```
+### 6. Настройка логирования
+Добавьте в ```application.yml```:
+```yaml
+logging:
+  file:
+    name: logs/app.log
+  level:
+    root: INFO
+    org.springframework: WARN
+    ru.timetracker: DEBUG
+```
 
 ## Форматы данных
 

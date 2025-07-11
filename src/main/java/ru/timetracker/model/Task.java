@@ -63,6 +63,7 @@ public class Task {
      * Статус активности задачи (true - активная, false - неактивная)
      * @return Статус активности
      */
+    @Builder.Default
     @Column(nullable = false) private boolean active = true;
 
     /**
