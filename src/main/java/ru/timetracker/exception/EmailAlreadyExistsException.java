@@ -4,9 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Исключение, выбрасываемое при попытке регистрации или обновления email,
- * который уже существует в системе.
- *
+ * Исключение, выбрасываемое при попытке регистрации или обновления email, который уже существует в системе.
  * <p>Особенности:
  * <ul>
  *   <li>Логирует предупреждение о попытке использования существующего email</li>
@@ -19,7 +17,6 @@ public class EmailAlreadyExistsException extends RuntimeException {
 
     /**
      * Создает исключение с указанием проблемного email
-     *
      * @param email Email, который уже существует в системе
      */
     public EmailAlreadyExistsException(String email) {

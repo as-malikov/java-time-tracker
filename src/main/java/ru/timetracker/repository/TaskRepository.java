@@ -11,13 +11,11 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Репозиторий для работы с задачами.
- * Расширяет {@link JpaRepository} и добавляет специализированные методы для работы с {@link Task}.
+ * Репозиторий для работы с задачами. Расширяет {@link JpaRepository} и добавляет специализированные методы для работы с {@link Task}.
  */
 public interface TaskRepository extends JpaRepository<Task, Long> {
     /**
      * Находит все задачи пользователя
-     *
      * @param user Пользователь-владелец задач
      * @return Список задач пользователя
      */
@@ -25,7 +23,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     /**
      * Находит задачи пользователя с фильтрацией по статусу
-     *
      * @param userId          ID пользователя
      * @param includeInactive Включать ли неактивные задачи
      * @return Список задач с учетом фильтра
@@ -35,7 +32,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     /**
      * Проверяет существование задачи с указанным названием у пользователя
-     *
      * @param userId ID пользователя
      * @param title  Название задачи
      * @return true если задача с таким названием уже существует, false в противном случае
@@ -44,7 +40,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     /**
      * Находит задачу по ID с проверкой владельца
-     *
      * @param id     ID задачи
      * @param userId ID пользователя
      * @return Задача, если найдена и принадлежит пользователю
@@ -53,7 +48,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     /**
      * Удаляет все задачи пользователя
-     *
      * @param user Пользователь, чьи задачи нужно удалить
      */
     @Transactional

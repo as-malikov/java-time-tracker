@@ -20,8 +20,7 @@ import ru.timetracker.repository.UserRepository;
 import java.util.List;
 
 /**
- * Сервис для работы с пользователями системы.
- * Обеспечивает основные CRUD операции, валидацию и бизнес-логику работы с пользователями.
+ * Сервис для работы с пользователями системы. Обеспечивает основные CRUD операции, валидацию и бизнес-логику работы с пользователями.
  * <p>Основные функции:
  * <ul>
  *   <li>Получение списка пользователей</li>
@@ -44,13 +43,12 @@ public class UserService {
 
     /**
      * Конструктор сервиса пользователей.
-     * @param userRepository репозиторий пользователей
-     * @param userMapper маппер для преобразования DTO
-     * @param taskRepository репозиторий задач
+     * @param userRepository      репозиторий пользователей
+     * @param userMapper          маппер для преобразования DTO
+     * @param taskRepository      репозиторий задач
      * @param timeEntryRepository репозиторий временных записей
      */
-    public UserService(
-            UserRepository userRepository, UserMapper userMapper, TaskRepository taskRepository,
+    public UserService(UserRepository userRepository, UserMapper userMapper, TaskRepository taskRepository,
             TimeEntryRepository timeEntryRepository) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
@@ -112,10 +110,10 @@ public class UserService {
 
     /**
      * Обновляет данные пользователя
-     * @param id ID обновляемого пользователя
+     * @param id            ID обновляемого пользователя
      * @param userUpdateDTO DTO с новыми данными
      * @return Обновленный DTO пользователя
-     * @throws ResourceNotFoundException если пользователь не найден
+     * @throws ResourceNotFoundException   если пользователь не найден
      * @throws EmailAlreadyExistsException если новый email уже занят
      */
     @Transactional

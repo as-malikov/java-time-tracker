@@ -7,9 +7,7 @@ import ru.timetracker.dto.user.UserUpdateDTO;
 import ru.timetracker.model.User;
 
 /**
- * Маппер для преобразования между сущностью User и DTO.
- * Обеспечивает безопасное преобразование с игнорированием чувствительных полей.
- *
+ * Маппер для преобразования между сущностью User и DTO. Обеспечивает безопасное преобразование с игнорированием чувствительных полей.
  * <p>Основные преобразования:
  * <ul>
  *   <li>User ↔ UserDTO</li>
@@ -22,7 +20,6 @@ public interface UserMapper {
 
     /**
      * Преобразует сущность User в UserDTO
-     *
      * @param user Сущность пользователя
      * @return DTO пользователя
      */
@@ -30,7 +27,6 @@ public interface UserMapper {
 
     /**
      * Преобразует UserCreateDTO в сущность User
-     *
      * @param userCreateDTO DTO для создания пользователя
      * @return Сущность пользователя
      */
@@ -42,7 +38,6 @@ public interface UserMapper {
 
     /**
      * Обновляет сущность User из UserUpdateDTO
-     *
      * @param userUpdateDTO DTO с обновленными данными
      * @param user          Сущность для обновления
      */

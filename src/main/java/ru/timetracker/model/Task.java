@@ -10,8 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Сущность задачи пользователя.
- * Хранит информацию о задаче, её статусе и связанных записях времени.
+ * Сущность задачи пользователя. Хранит информацию о задаче, её статусе и связанных записях времени.
  * <p>Основные характеристики:
  * <ul>
  *   <li>Уникальный идентификатор</li>
@@ -63,22 +62,21 @@ public class Task {
      * Статус активности задачи (true - активная, false - неактивная)
      * @return Статус активности
      */
-    @Builder.Default
-    @Column(nullable = false) private boolean active = true;
+    @Builder.Default @Column(nullable = false) private boolean active = true;
 
     /**
      * Пользователь-владелец задачи
      * @return Объект пользователя
      */
-    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "user_id", nullable = false) @ToString.Exclude
-    @EqualsAndHashCode.Exclude private User user;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "user_id", nullable = false) @ToString.Exclude @EqualsAndHashCode.Exclude
+    private User user;
 
     /**
      * Список записей времени, связанных с задачей
      * @return Список записей времени
      */
-    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true) @ToString.Exclude
-    @EqualsAndHashCode.Exclude private List<TimeEntry> timeEntries;
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true) @ToString.Exclude @EqualsAndHashCode.Exclude
+    private List<TimeEntry> timeEntries;
 
     /**
      * Конструктор по умолчанию, необходимый для Javadoc.

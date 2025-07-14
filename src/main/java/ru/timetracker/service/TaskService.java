@@ -14,15 +14,13 @@ import ru.timetracker.exception.TaskAlreadyExistsException;
 import ru.timetracker.model.Task;
 import ru.timetracker.model.User;
 import ru.timetracker.repository.TaskRepository;
-import ru.timetracker.repository.TimeEntryRepository;
 import ru.timetracker.repository.UserRepository;
 
 import java.util.List;
 
 /**
- * Сервис для работы с задачами пользователей.
- * Обеспечивает создание, получение, обновление и удаление задач,
- * а также управление их статусом (активные/неактивные).
+ * Сервис для работы с задачами пользователей. Обеспечивает создание, получение, обновление и удаление задач, а также управление их статусом
+ * (активные/неактивные).
  * <p>Основные функции:
  * <ul>
  *   <li>Управление жизненным циклом задач</li>
@@ -46,7 +44,7 @@ public class TaskService {
      * Конструктор сервиса задач.
      * @param taskRepository репозиторий для работы с задачами
      * @param userRepository репозиторий пользователей
-     * @param taskMapper маппер для преобразования задач
+     * @param taskMapper     маппер для преобразования задач
      */
     public TaskService(TaskRepository taskRepository, UserRepository userRepository, TaskMapper taskMapper) {
         this.taskRepository = taskRepository;
@@ -56,7 +54,7 @@ public class TaskService {
 
     /**
      * Получает список задач пользователя
-     * @param userId ID пользователя (обязательный)
+     * @param userId          ID пользователя (обязательный)
      * @param includeInactive включать ли неактивные задачи
      * @return Список DTO задач
      */
@@ -93,10 +91,10 @@ public class TaskService {
 
     /**
      * Создает новую задачу для пользователя
-     * @param userId ID пользователя (обязательный)
+     * @param userId        ID пользователя (обязательный)
      * @param taskCreateDTO DTO с данными для создания задачи
      * @return Созданная DTO задачи
-     * @throws ResourceNotFoundException если пользователь не найден
+     * @throws ResourceNotFoundException  если пользователь не найден
      * @throws TaskAlreadyExistsException если задача с таким названием уже существует
      */
     @Transactional
@@ -126,8 +124,8 @@ public class TaskService {
 
     /**
      * Обновляет существующую задачу
-     * @param taskId ID задачи (обязательный)
-     * @param userId ID пользователя (обязательный)
+     * @param taskId        ID задачи (обязательный)
+     * @param userId        ID пользователя (обязательный)
      * @param taskUpdateDTO DTO с обновленными данными задачи
      * @return Обновленная DTO задачи
      * @throws ResourceNotFoundException если задача не найдена
@@ -177,8 +175,7 @@ public class TaskService {
         task.setActive(newStatus);
         task = taskRepository.save(task);
 
-        logger.info("Status changed for task ID: {} for user ID: {}. New status: {}", taskId, userId,
-                newStatus ? "active" : "inactive");
+        logger.info("Status changed for task ID: {} for user ID: {}. New status: {}", taskId, userId, newStatus ? "active" : "inactive");
         return taskMapper.toDTO(task);
     }
 

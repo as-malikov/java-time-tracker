@@ -13,13 +13,11 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Репозиторий для работы с записями времени.
- * Предоставляет сложные запросы для аналитики временных интервалов {@link TimeEntry}.
+ * Репозиторий для работы с записями времени. Предоставляет сложные запросы для аналитики временных интервалов {@link TimeEntry}.
  */
 public interface TimeEntryRepository extends JpaRepository<TimeEntry, Long> {
     /**
      * Находит записи времени пользователя за указанный период
-     *
      * @param user  Пользователь
      * @param start Начало периода
      * @param end   Конец периода
@@ -29,7 +27,6 @@ public interface TimeEntryRepository extends JpaRepository<TimeEntry, Long> {
 
     /**
      * Находит активную (незавершенную) запись времени пользователя
-     *
      * @param user Пользователь
      * @return Активная запись времени, если существует
      */
@@ -37,24 +34,20 @@ public interface TimeEntryRepository extends JpaRepository<TimeEntry, Long> {
 
     /**
      * Вычисляет продолжительность работы по задачам за период
-     *
      * @param userId ID пользователя
      * @param start  Начало периода
      * @param end    Конец периода
      * @return Список массивов [taskId, taskTitle, totalSeconds]
      */
     @Query("SELECT t.id, t.title, " + "SUM(FUNCTION('TIMESTAMPDIFF', SECOND, te.startTime, " +
-            "CASE WHEN te.endTime IS NULL THEN CURRENT_TIMESTAMP ELSE te.endTime END)) " +
-            "FROM TimeEntry te JOIN te.task t " +
+            "CASE WHEN te.endTime IS NULL THEN CURRENT_TIMESTAMP ELSE te.endTime END)) " + "FROM TimeEntry te JOIN te.task t " +
             "WHERE te.user.id = :userId AND te.startTime BETWEEN :start AND :end " + "GROUP BY t.id, t.title " +
             "ORDER BY MIN(te.startTime)")
-    List<Object[]> findTaskDurationsByUserAndPeriod(
-            @Param("userId") Long userId, @Param("start") LocalDateTime start,
+    List<Object[]> findTaskDurationsByUserAndPeriod(@Param("userId") Long userId, @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end);
 
     /**
      * Находит первую запись времени для задачи пользователя
-     *
      * @param userId ID пользователя
      * @param taskId ID задачи
      * @return Самая ранняя запись времени, если существует
@@ -63,7 +56,6 @@ public interface TimeEntryRepository extends JpaRepository<TimeEntry, Long> {
 
     /**
      * Вычисляет общее время работы пользователя за период
-     *
      * @param userId ID пользователя
      * @param start  Начало периода
      * @param end    Конец периода
@@ -72,13 +64,10 @@ public interface TimeEntryRepository extends JpaRepository<TimeEntry, Long> {
     @Query("SELECT SUM(FUNCTION('TIMESTAMPDIFF', SECOND, te.startTime, " +
             "CASE WHEN te.endTime IS NULL THEN CURRENT_TIMESTAMP ELSE te.endTime END)) " + "FROM TimeEntry te " +
             "WHERE te.user.id = :userId AND te.startTime BETWEEN :start AND :end")
-    Long sumWorkDurationByUserAndPeriod(
-            @Param("userId") Long userId, @Param("start") LocalDateTime start,
-            @Param("end") LocalDateTime end);
+    Long sumWorkDurationByUserAndPeriod(@Param("userId") Long userId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
     /**
      * Удаляет все записи времени пользователя
-     *
      * @param user Пользователь, чьи записи нужно удалить
      */
     @Transactional
@@ -87,7 +76,6 @@ public interface TimeEntryRepository extends JpaRepository<TimeEntry, Long> {
 
     /**
      * Находит все активные (незавершенные) записи времени
-     *
      * @return Список активных записей времени
      */
     List<TimeEntry> findByEndTimeIsNull();

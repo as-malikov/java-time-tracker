@@ -9,8 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Сущность пользователя системы.
- * Содержит основные данные пользователя и связи с его задачами и записями времени.
+ * Сущность пользователя системы. Содержит основные данные пользователя и связи с его задачами и записями времени.
  * <p>Основные атрибуты:
  * <ul>
  *   <li>Уникальный идентификатор</li>
@@ -60,26 +59,21 @@ public class User {
      * Дата и время создания пользователя (устанавливается автоматически)
      * @return Дата создания
      */
-    @Builder.Default
-    @Column(nullable = false, updatable = false) private LocalDateTime createdAt = LocalDateTime.now();
+    @Builder.Default @Column(nullable = false, updatable = false) private LocalDateTime createdAt = LocalDateTime.now();
 
     /**
      * Список задач пользователя
      * @return Список задач
      */
-    @ToString.Exclude @EqualsAndHashCode.Exclude
-    @Builder.Default
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true) private List<Task> tasks =
-            new ArrayList<>();
+    @ToString.Exclude @EqualsAndHashCode.Exclude @Builder.Default
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true) private List<Task> tasks = new ArrayList<>();
 
     /**
      * Список записей времени пользователя
      * @return Список записей времени
      */
-    @ToString.Exclude @EqualsAndHashCode.Exclude
-    @Builder.Default
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true) private List<TimeEntry> timeEntries =
-            new ArrayList<>();
+    @ToString.Exclude @EqualsAndHashCode.Exclude @Builder.Default
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true) private List<TimeEntry> timeEntries = new ArrayList<>();
 
     /**
      * Конструктор по умолчанию, необходимый для Javadoc.

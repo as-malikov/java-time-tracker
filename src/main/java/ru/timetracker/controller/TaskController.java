@@ -23,9 +23,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 
 /**
- * Контроллер для управления задачами пользователей.
- * Предоставляет REST API для операций с задачами конкретного пользователя.
- * Базовый путь: /api/v1/users/{userId}/tasks
+ * Контроллер для управления задачами пользователей. Предоставляет REST API для операций с задачами конкретного пользователя. Базовый путь:
+ * /api/v1/users/{userId}/tasks
  * <p>Поддерживаемые операции:
  * <ul>
  *   <li>Получение списка задач (с фильтрацией по статусу)</li>
@@ -56,22 +55,19 @@ public class TaskController {
 
     /**
      * Получает список задач пользователя
-     * @param userId ID пользователя (обязательный)
+     * @param userId          ID пользователя (обязательный)
      * @param includeInactive включать ли неактивные задачи (по умолчанию false)
      * @return список задач со статусом 200 OK или 500 при ошибке
      */
-    @Operation(summary = "Get user tasks",
-               description = "Retrieves all tasks for a specific user, with option to include inactive tasks")
+    @Operation(summary = "Get user tasks", description = "Retrieves all tasks for a specific user, with option to include inactive tasks")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Tasks retrieved successfully",
-                                        content = @Content(mediaType = "application/json",
-                                                           schema = @Schema(implementation = TaskDTO.class,
-                                                                            type = "array"))),
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskDTO.class, type = "array"))),
             @ApiResponse(responseCode = "500", description = "Internal server error")})
     @GetMapping
     public ResponseEntity<List<TaskDTO>> getUserTasks(
-            @Parameter(description = "ID of the user whose tasks to retrieve", required = true) @PathVariable
-            Long userId, @Parameter(description = "Whether to include inactive tasks", example = "false")
-            @RequestParam(defaultValue = "false") boolean includeInactive) {
+            @Parameter(description = "ID of the user whose tasks to retrieve", required = true) @PathVariable Long userId,
+            @Parameter(description = "Whether to include inactive tasks", example = "false") @RequestParam(defaultValue = "false")
+            boolean includeInactive) {
 
         logger.info("Fetching tasks for user {} (includeInactive: {})", userId, includeInactive);
 
@@ -94,8 +90,7 @@ public class TaskController {
      */
     @Operation(summary = "Get task by ID", description = "Retrieves a specific task for a user by task ID")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Task found",
-                                        content = @Content(mediaType = "application/json",
-                                                           schema = @Schema(implementation = TaskDTO.class))),
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskDTO.class))),
             @ApiResponse(responseCode = "404", description = "Task not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")})
     @GetMapping("/{taskId}")
@@ -118,22 +113,20 @@ public class TaskController {
 
     /**
      * Создает новую задачу для пользователя
-     * @param userId ID пользователя-владельца (обязательный)
+     * @param userId        ID пользователя-владельца (обязательный)
      * @param taskCreateDTO данные для создания задачи (валидируются)
      * @return созданная задача со статусом 201 Created или 400/404/500 при ошибках
      */
     @Operation(summary = "Create new task", description = "Creates a new task for the specified user")
     @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "Task created successfully",
-                                        content = @Content(mediaType = "application/json",
-                                                           schema = @Schema(implementation = TaskDTO.class))),
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid input data"),
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")})
     @PostMapping
     public ResponseEntity<TaskDTO> createTask(
             @Parameter(description = "ID of the user who will own the task", required = true) @PathVariable Long userId,
-            @Parameter(description = "Task data to create", required = true) @RequestBody @Valid
-            TaskCreateDTO taskCreateDTO) {
+            @Parameter(description = "Task data to create", required = true) @RequestBody @Valid TaskCreateDTO taskCreateDTO) {
 
         logger.info("Creating task for user {}. Data: {}", userId, taskCreateDTO);
 
@@ -151,15 +144,14 @@ public class TaskController {
 
     /**
      * Обновляет существующую задачу
-     * @param userId ID пользователя-владельца (обязательный)
-     * @param taskId ID обновляемой задачи (обязательный)
+     * @param userId        ID пользователя-владельца (обязательный)
+     * @param taskId        ID обновляемой задачи (обязательный)
      * @param taskUpdateDTO новые данные задачи (валидируются)
      * @return обновленная задача со статусом 200 OK или 400/404/500 при ошибках
      */
     @Operation(summary = "Update task", description = "Updates an existing task for a user")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Task updated successfully",
-                                        content = @Content(mediaType = "application/json",
-                                                           schema = @Schema(implementation = TaskDTO.class))),
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid input data"),
             @ApiResponse(responseCode = "404", description = "Task or user not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")})
@@ -167,8 +159,7 @@ public class TaskController {
     public ResponseEntity<TaskDTO> updateTask(
             @Parameter(description = "ID of the user who owns the task", required = true) @PathVariable Long userId,
             @Parameter(description = "ID of the task to update", required = true) @PathVariable Long taskId,
-            @Parameter(description = "Updated task data", required = true) @RequestBody @Valid
-            TaskUpdateDTO taskUpdateDTO) {
+            @Parameter(description = "Updated task data", required = true) @RequestBody @Valid TaskUpdateDTO taskUpdateDTO) {
 
         logger.info("Updating task {} for user {}. Data: {}", taskId, userId, taskUpdateDTO);
 
@@ -191,8 +182,7 @@ public class TaskController {
      */
     @Operation(summary = "Toggle task status", description = "Toggles the active/inactive status of a task")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Task status toggled successfully",
-                                        content = @Content(mediaType = "application/json",
-                                                           schema = @Schema(implementation = TaskDTO.class))),
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskDTO.class))),
             @ApiResponse(responseCode = "404", description = "Task or user not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")})
     @PatchMapping("/{taskId}/toggle-status")
@@ -247,15 +237,14 @@ public class TaskController {
      * @param userId ID пользователя (обязательный)
      * @return статус 204 No Content при успехе или 404/500 при ошибках
      */
-    @Operation(summary = "Delete all tasks for user",
-               description = "Permanently removes all tasks associated with the specified user ID")
+    @Operation(summary = "Delete all tasks for user", description = "Permanently removes all tasks associated with the specified user ID")
     @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "Tasks successfully deleted"),
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")})
     @DeleteMapping
     public ResponseEntity<Void> deleteTasksCompletely(
-            @Parameter(description = "ID of the user whose tasks should be deleted", required = true, example = "123")
-            @PathVariable Long userId) {
+            @Parameter(description = "ID of the user whose tasks should be deleted", required = true, example = "123") @PathVariable
+            Long userId) {
 
         logger.info("Deleting all tasks for user: {}", userId);
 

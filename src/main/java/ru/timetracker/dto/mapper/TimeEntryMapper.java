@@ -9,9 +9,7 @@ import ru.timetracker.model.TimeEntry;
 import java.time.Duration;
 
 /**
- * Маппер для преобразования между сущностью TimeEntry и DTO.
- * Обеспечивает сложные преобразования с расчетом продолжительности.
- *
+ * Маппер для преобразования между сущностью TimeEntry и DTO. Обеспечивает сложные преобразования с расчетом продолжительности.
  * <p>Особенности:
  * <ul>
  *   <li>Автоматический расчет продолжительности</li>
@@ -24,7 +22,6 @@ public interface TimeEntryMapper {
 
     /**
      * Преобразует сущность TimeEntry в TimeEntryDTO
-     *
      * @param timeEntry Сущность записи времени
      * @return DTO записи времени
      */
@@ -37,7 +34,6 @@ public interface TimeEntryMapper {
 
     /**
      * Вычисляет продолжительность записи времени
-     *
      * @param timeEntry Сущность записи времени
      * @return Продолжительность
      */
@@ -48,7 +44,6 @@ public interface TimeEntryMapper {
 
     /**
      * Проверяет активна ли запись времени
-     *
      * @param timeEntry Сущность записи времени
      * @return true если запись активна
      */

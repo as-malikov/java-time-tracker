@@ -17,6 +17,16 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Тесты для {@link UserController}. Проверяют корректность работы с пользователями, включая CRUD-операции и валидацию данных.
+ * <p>Основные проверяемые сценарии:
+ * <ul>
+ *   <li>Получение списка пользователей и данных конкретного пользователя</li>
+ *   <li>Создание, обновление и удаление пользователей</li>
+ *   <li>Корректность HTTP-статусов в ответах</li>
+ *   <li>Правильность передачи параметров в сервисный слой</li>
+ * </ul>
+ */
 @ExtendWith(MockitoExtension.class)
 class UserControllerTest {
 
@@ -24,6 +34,14 @@ class UserControllerTest {
 
     @InjectMocks private UserController userController;
 
+    /**
+     * Проверяет успешное получение списка всех пользователей. Ожидаемое поведение:
+     * <ul>
+     *   <li>HTTP-статус 200 (OK)</li>
+     *   <li>Тело ответа содержит список пользователей</li>
+     *   <li>Вызов userService.getAllUsers() без параметров</li>
+     * </ul>
+     */
     @Test
     void getAllUsers_Success() {
         List<UserDTO> users = List.of(new UserDTO());
@@ -36,6 +54,14 @@ class UserControllerTest {
         verify(userService).getAllUsers();
     }
 
+    /**
+     * Проверяет успешное получение данных пользователя по ID. Ожидаемое поведение:
+     * <ul>
+     *   <li>HTTP-статус 200 (OK)</li>
+     *   <li>Тело ответа содержит данные пользователя</li>
+     *   <li>Вызов userService.getUserById() с правильным ID</li>
+     * </ul>
+     */
     @Test
     void getUser_Success() {
         Long id = 1L;
@@ -49,6 +75,14 @@ class UserControllerTest {
         verify(userService).getUserById(id);
     }
 
+    /**
+     * Проверяет успешное создание нового пользователя. Ожидаемое поведение:
+     * <ul>
+     *   <li>HTTP-статус 201 (Created)</li>
+     *   <li>Тело ответа содержит данные созданного пользователя</li>
+     *   <li>Вызов userService.createUser() с переданными данными</li>
+     * </ul>
+     */
     @Test
     void createUser_Success() {
         UserCreateDTO createDTO = new UserCreateDTO();
@@ -62,6 +96,14 @@ class UserControllerTest {
         verify(userService).createUser(createDTO);
     }
 
+    /**
+     * Проверяет успешное обновление данных пользователя. Ожидаемое поведение:
+     * <ul>
+     *   <li>HTTP-статус 200 (OK)</li>
+     *   <li>Тело ответа содержит обновленные данные</li>
+     *   <li>Вызов userService.updateUser() с правильными ID и данными</li>
+     * </ul>
+     */
     @Test
     void updateUser_Success() {
         Long id = 1L;
@@ -76,6 +118,13 @@ class UserControllerTest {
         verify(userService).updateUser(id, updateDTO);
     }
 
+    /**
+     * Проверяет успешное полное удаление пользователя. Ожидаемое поведение:
+     * <ul>
+     *   <li>HTTP-статус 204 (No Content)</li>
+     *   <li>Вызов userService.deleteUserCompletely() с правильным ID</li>
+     * </ul>
+     */
     @Test
     void deleteUserCompletely_Success() {
         Long userId = 1L;

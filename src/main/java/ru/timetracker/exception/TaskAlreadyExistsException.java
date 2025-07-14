@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * Исключение, выбрасываемое при попытке создания задачи с уже существующим названием.
- *
  * <p>Особенности:
  * <ul>
  *   <li>Логирует предупреждение о дубликате задачи</li>
@@ -18,7 +17,6 @@ public class TaskAlreadyExistsException extends RuntimeException {
 
     /**
      * Создает исключение с указанием дублирующегося названия задачи
-     *
      * @param title Название задачи, которое уже существует
      */
     public TaskAlreadyExistsException(String title) {
@@ -28,7 +26,6 @@ public class TaskAlreadyExistsException extends RuntimeException {
 
     /**
      * Логирует информацию о попытке создания дубликата задачи
-     *
      * @param identifier Название или идентификатор задачи
      */
     private void logError(String identifier) {

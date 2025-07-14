@@ -17,6 +17,16 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Тесты для {@link TaskController}. Проверяют корректность обработки HTTP-запросов, взаимодействие с {@link TaskService} и возвращаемые
+ * статусы ответов.
+ * <p>Проверяемые сценарии:
+ * <ul>
+ *   <li>Успешное выполнение операций CRUD</li>
+ *   <li>Корректность HTTP-статусов в ответах</li>
+ *   <li>Правильность передачи параметров в сервисный слой</li>
+ * </ul>
+ */
 @ExtendWith(MockitoExtension.class)
 class TaskControllerTest {
 
@@ -24,6 +34,14 @@ class TaskControllerTest {
 
     @InjectMocks private TaskController taskController;
 
+    /**
+     * Проверяет успешное получение списка задач пользователя. Ожидаемое поведение:
+     * <ul>
+     *   <li>HTTP-статус 200 (OK)</li>
+     *   <li>Тело ответа содержит список задач</li>
+     *   <li>Вызов taskService.getUserTasks() с правильными параметрами</li>
+     * </ul>
+     */
     @Test
     void getUserTasks_Success() {
         Long userId = 1L;
@@ -37,6 +55,14 @@ class TaskControllerTest {
         verify(taskService).getUserTasks(userId, false);
     }
 
+    /**
+     * Проверяет успешное получение конкретной задачи. Ожидаемое поведение:
+     * <ul>
+     *   <li>HTTP-статус 200 (OK)</li>
+     *   <li>Тело ответа содержит данные задачи</li>
+     *   <li>Вызов taskService.getTaskById() с правильными параметрами</li>
+     * </ul>
+     */
     @Test
     void getTask_Success() {
         Long userId = 1L;
@@ -51,6 +77,14 @@ class TaskControllerTest {
         verify(taskService).getTaskById(userId, taskId);
     }
 
+    /**
+     * Проверяет успешное создание новой задачи. Ожидаемое поведение:
+     * <ul>
+     *   <li>HTTP-статус 201 (Created)</li>
+     *   <li>Тело ответа содержит созданную задачу</li>
+     *   <li>Вызов taskService.createTask() с правильными параметрами</li>
+     * </ul>
+     */
     @Test
     void createTask_Success() {
         Long userId = 1L;
@@ -65,6 +99,14 @@ class TaskControllerTest {
         verify(taskService).createTask(userId, createDTO);
     }
 
+    /**
+     * Проверяет успешное обновление существующей задачи. Ожидаемое поведение:
+     * <ul>
+     *   <li>HTTP-статус 200 (OK)</li>
+     *   <li>Тело ответа содержит обновленные данные</li>
+     *   <li>Вызов taskService.updateTask() с правильными параметрами</li>
+     * </ul>
+     */
     @Test
     void updateTask_Success() {
         Long userId = 1L;
@@ -80,6 +122,14 @@ class TaskControllerTest {
         verify(taskService).updateTask(taskId, userId, updateDTO);
     }
 
+    /**
+     * Проверяет успешное изменение статуса задачи. Ожидаемое поведение:
+     * <ul>
+     *   <li>HTTP-статус 200 (OK)</li>
+     *   <li>Тело ответа содержит задачу с обновленным статусом</li>
+     *   <li>Вызов taskService.toggleTaskStatus() с правильными параметрами</li>
+     * </ul>
+     */
     @Test
     void toggleTaskStatus_Success() {
         Long userId = 1L;
@@ -94,6 +144,13 @@ class TaskControllerTest {
         verify(taskService).toggleTaskStatus(taskId, userId);
     }
 
+    /**
+     * Проверяет успешное удаление задачи. Ожидаемое поведение:
+     * <ul>
+     *   <li>HTTP-статус 204 (No Content)</li>
+     *   <li>Вызов taskService.deleteTask() с правильными параметрами</li>
+     * </ul>
+     */
     @Test
     void deleteTask_Success() {
         Long userId = 1L;

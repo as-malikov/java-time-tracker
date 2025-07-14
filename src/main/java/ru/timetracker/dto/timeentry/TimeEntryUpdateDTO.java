@@ -5,8 +5,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * DTO для обновления записи времени.
- * Используется преимущественно для остановки трекинга.
+ * DTO для обновления записи времени. Используется преимущественно для остановки трекинга.
  */
 @Data
 public class TimeEntryUpdateDTO {

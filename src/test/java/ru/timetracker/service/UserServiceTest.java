@@ -22,6 +22,17 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Тесты для {@link UserService}. Проверяют бизнес-логику работы с пользователями,
+ * включая валидацию данных и обработку исключительных ситуаций.
+ * <p>Основные проверяемые сценарии:
+ * <ul>
+ *   <li>CRUD-операции с пользователями</li>
+ *   <li>Проверка уникальности email</li>
+ *   <li>Обработка случаев отсутствия пользователя</li>
+ *   <li>Каскадное удаление связанных данных</li>
+ * </ul>
+ */
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
@@ -34,6 +45,15 @@ class UserServiceTest {
     @Mock private TimeEntryRepository timeEntryRepository;
     @InjectMocks private UserService userService;
 
+    /**
+     * Проверяет получение списка всех пользователей.
+     * Ожидаемое поведение:
+     * <ul>
+     *   <li>Возвращает список DTO пользователей</li>
+     *   <li>Вызывает userRepository.findAll()</li>
+     *   <li>Преобразует сущности в DTO через userMapper</li>
+     * </ul>
+     */
     @Test
     void getAllUsers_ShouldReturnListOfUsers() {
         User user = new User();
@@ -48,6 +68,14 @@ class UserServiceTest {
         verify(userRepository).findAll();
     }
 
+    /**
+     * Проверяет обработку пустого списка пользователей.
+     * Ожидаемое поведение:
+     * <ul>
+     *   <li>Возвращает пустой список</li>
+     *   <li>Не генерирует исключений</li>
+     * </ul>
+     */
     @Test
     void getAllUsers_ShouldReturnEmptyList_WhenNoUsersExist() {
         when(userRepository.findAll()).thenReturn(List.of());
@@ -57,6 +85,15 @@ class UserServiceTest {
         assertTrue(result.isEmpty());
     }
 
+    /**
+     * Проверяет получение пользователя по существующему ID.
+     * Ожидаемое поведение:
+     * <ul>
+     *   <li>Возвращает DTO пользователя</li>
+     *   <li>Вызывает userRepository.findById()</li>
+     *   <li>Преобразует сущность в DTO</li>
+     * </ul>
+     */
     @Test
     void getUserById_ShouldReturnUser_WhenExists() {
         User user = new User();
@@ -70,6 +107,14 @@ class UserServiceTest {
         verify(userRepository).findById(userId);
     }
 
+    /**
+     * Проверяет обработку случая отсутствия пользователя.
+     * Ожидаемое поведение:
+     * <ul>
+     *   <li>Генерирует ResourceNotFoundException</li>
+     *   <li>Не возвращает результат</li>
+     * </ul>
+     */
     @Test
     void getUserById_ShouldThrowException_WhenUserNotFound() {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
@@ -77,6 +122,15 @@ class UserServiceTest {
         assertThrows(ResourceNotFoundException.class, () -> userService.getUserById(userId));
     }
 
+    /**
+     * Проверяет создание нового пользователя с корректными данными.
+     * Ожидаемое поведение:
+     * <ul>
+     *   <li>Проверяет уникальность email</li>
+     *   <li>Сохраняет нового пользователя</li>
+     *   <li>Возвращает DTO созданного пользователя</li>
+     * </ul>
+     */
     @Test
     void createUser_ShouldCreateNewUser() {
         UserCreateDTO createDTO = new UserCreateDTO("Test User", email);
@@ -95,6 +149,14 @@ class UserServiceTest {
         verify(userRepository).save(user);
     }
 
+    /**
+     * Проверяет обработку дублирования email при создании.
+     * Ожидаемое поведение:
+     * <ul>
+     *   <li>Генерирует EmailAlreadyExistsException</li>
+     *   <li>Не сохраняет пользователя</li>
+     * </ul>
+     */
     @Test
     void createUser_ShouldThrowException_WhenEmailExists() {
         UserCreateDTO createDTO = new UserCreateDTO("Test User", email);
@@ -103,6 +165,15 @@ class UserServiceTest {
         assertThrows(EmailAlreadyExistsException.class, () -> userService.createUser(createDTO));
     }
 
+    /**
+     * Проверяет обновление данных пользователя.
+     * Ожидаемое поведение:
+     * <ul>
+     *   <li>Обновляет имя пользователя</li>
+     *   <li>Проверяет новый email на уникальность</li>
+     *   <li>Возвращает обновленные данные</li>
+     * </ul>
+     */
     @Test
     void updateUser_ShouldUpdateUser() {
         UserUpdateDTO updateDTO = new UserUpdateDTO("Updated Name", newEmail);
@@ -122,6 +193,15 @@ class UserServiceTest {
         verify(userMapper).updateEntity(updateDTO, existingUser);
     }
 
+    /**
+     * Проверяет обновление пользователя без проверки email, когда он не изменен.
+     * Ожидаемое поведение:
+     * <ul>
+     *   <li>Обновляет только имя пользователя</li>
+     *   <li>Не проверяет email на уникальность, если он не изменился</li>
+     *   <li>Возвращает обновленные данные</li>
+     * </ul>
+     */
     @Test
     void updateUser_ShouldNotCheckEmail_WhenNotChanged() {
         UserUpdateDTO updateDTO = new UserUpdateDTO("Updated Name", email);
@@ -139,6 +219,14 @@ class UserServiceTest {
         verify(userRepository, never()).existsByEmail(any());
     }
 
+    /**
+     * Проверяет обработку случая, когда новый email уже существует в системе.
+     * Ожидаемое поведение:
+     * <ul>
+     *   <li>Генерирует EmailAlreadyExistsException</li>
+     *   <li>Не сохраняет изменения</li>
+     * </ul>
+     */
     @Test
     void updateUser_ShouldThrowException_WhenNewEmailExists() {
         UserUpdateDTO updateDTO = new UserUpdateDTO("Updated Name", newEmail);
@@ -151,6 +239,14 @@ class UserServiceTest {
         assertThrows(EmailAlreadyExistsException.class, () -> userService.updateUser(userId, updateDTO));
     }
 
+    /**
+     * Проверяет обработку случая отсутствия пользователя при обновлении.
+     * Ожидаемое поведение:
+     * <ul>
+     *   <li>Генерирует ResourceNotFoundException</li>
+     *   <li>Не выполняет обновление</li>
+     * </ul>
+     */
     @Test
     void updateUser_ShouldThrowException_WhenUserNotFound() {
         UserUpdateDTO updateDTO = new UserUpdateDTO();
@@ -159,6 +255,15 @@ class UserServiceTest {
         assertThrows(ResourceNotFoundException.class, () -> userService.updateUser(userId, updateDTO));
     }
 
+    /**
+     * Проверяет полное удаление пользователя и связанных с ним данных.
+     * Ожидаемое поведение:
+     * <ul>
+     *   <li>Удаляет все временные записи пользователя</li>
+     *   <li>Удаляет все задачи пользователя</li>
+     *   <li>Удаляет самого пользователя</li>
+     * </ul>
+     */
     @Test
     void deleteUserCompletely_ShouldDeleteUserAndRelatedData() {
         User user = new User();
@@ -171,6 +276,14 @@ class UserServiceTest {
         verify(userRepository).delete(user);
     }
 
+    /**
+     * Проверяет обработку случая отсутствия пользователя при удалении.
+     * Ожидаемое поведение:
+     * <ul>
+     *   <li>Генерирует ResourceNotFoundException</li>
+     *   <li>Не выполняет удаление</li>
+     * </ul>
+     */
     @Test
     void deleteUserCompletely_ShouldThrowException_WhenUserNotFound() {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
@@ -178,6 +291,15 @@ class UserServiceTest {
         assertThrows(ResourceNotFoundException.class, () -> userService.deleteUserCompletely(userId));
     }
 
+    /**
+     * Проверяет обновление только имени пользователя, когда email не предоставлен.
+     * Ожидаемое поведение:
+     * <ul>
+     *   <li>Обновляет только имя пользователя</li>
+     *   <li>Не изменяет email</li>
+     *   <li>Не проверяет email на уникальность</li>
+     * </ul>
+     */
     @Test
     void updateUser_ShouldUpdateOnlyName_WhenEmailNotProvided() {
         UserUpdateDTO updateDTO = new UserUpdateDTO("New Name", null);
@@ -198,6 +320,15 @@ class UserServiceTest {
         verify(userRepository, never()).existsByEmail(notNull());
     }
 
+    /**
+     * Проверяет создание пользователя с пустым именем.
+     * Ожидаемое поведение:
+     * <ul>
+     *   <li>Создает пользователя с указанным именем</li>
+     *   <li>Не генерирует исключений при пустом имени</li>
+     *   <li>Возвращает созданного пользователя</li>
+     * </ul>
+     */
     @Test
     void createUser_ShouldHandleEmptyName() {
         UserCreateDTO createDTO = new UserCreateDTO("Name", email);

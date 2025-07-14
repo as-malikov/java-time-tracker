@@ -2,7 +2,6 @@ package ru.timetracker.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Duration;
@@ -10,8 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * Сущность записи времени работы над задачей.
- * Хранит информацию о временных интервалах работы пользователя над задачами.
+ * Сущность записи времени работы над задачей. Хранит информацию о временных интервалах работы пользователя над задачами.
  * <p>Основные характеристики:
  * <ul>
  *   <li>Время начала и окончания работы</li>
@@ -55,15 +53,15 @@ public class TimeEntry {
      * Пользователь, связанный с записью
      * @return Объект пользователя
      */
-    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "user_id", nullable = false) @ToString.Exclude
-    @EqualsAndHashCode.Exclude private User user;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "user_id", nullable = false) @ToString.Exclude @EqualsAndHashCode.Exclude
+    private User user;
 
     /**
      * Задача, связанная с записью
      * @return Объект задачи
      */
-    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "task_id", nullable = false) @ToString.Exclude
-    @EqualsAndHashCode.Exclude private Task task;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "task_id", nullable = false) @ToString.Exclude @EqualsAndHashCode.Exclude
+    private Task task;
 
     /**
      * Дата и время создания записи (устанавливается автоматически)
@@ -95,9 +93,8 @@ public class TimeEntry {
     }
 
     /**
-     * Callback-метод, выполняющийся перед сохранением или обновлением записи.
-     * Автоматически устанавливает startTime, если он не задан,
-     * и завершает записи за предыдущие дни.
+     * Callback-метод, выполняющийся перед сохранением или обновлением записи. Автоматически устанавливает startTime, если он не задан, и
+     * завершает записи за предыдущие дни.
      */
     @PrePersist
     @PreUpdate

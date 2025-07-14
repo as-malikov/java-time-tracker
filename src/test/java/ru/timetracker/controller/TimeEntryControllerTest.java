@@ -20,6 +20,17 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Тесты для {@link TimeEntryController}. Проверяют корректность работы с временными записями, включая старт/стоп трекинга, получение
+ * статистики и очистку данных.
+ * <p>Основные проверяемые сценарии:
+ * <ul>
+ *   <li>Создание и завершение временных записей</li>
+ *   <li>Получение статистики по задачам и временным интервалам</li>
+ *   <li>Очистка данных трекинга</li>
+ *   <li>Корректность HTTP-статусов в ответах</li>
+ * </ul>
+ */
 @ExtendWith(MockitoExtension.class)
 class TimeEntryControllerTest {
 
@@ -27,6 +38,14 @@ class TimeEntryControllerTest {
 
     @InjectMocks private TimeEntryController timeEntryController;
 
+    /**
+     * Проверяет успешное начало новой временной записи. Ожидаемое поведение:
+     * <ul>
+     *   <li>HTTP-статус 201 (Created)</li>
+     *   <li>Тело ответа содержит созданную временную запись</li>
+     *   <li>Вызов timeEntryService.startTimeEntry() с правильными параметрами</li>
+     * </ul>
+     */
     @Test
     void startTimeEntry_Success() {
         Long userId = 1L;
@@ -41,6 +60,15 @@ class TimeEntryControllerTest {
         verify(timeEntryService).startTimeEntry(userId, createDTO);
     }
 
+
+    /**
+     * Проверяет успешное завершение временной записи. Ожидаемое поведение:
+     * <ul>
+     *   <li>HTTP-статус 200 (OK)</li>
+     *   <li>Тело ответа содержит завершенную запись</li>
+     *   <li>Вызов timeEntryService.stopTimeEntry() с правильным ID записи</li>
+     * </ul>
+     */
     @Test
     void stopTimeEntry_Success() {
         Long timeEntryId = 1L;
@@ -54,6 +82,14 @@ class TimeEntryControllerTest {
         verify(timeEntryService).stopTimeEntry(timeEntryId);
     }
 
+    /**
+     * Проверяет успешное получение списка временных записей за период. Ожидаемое поведение:
+     * <ul>
+     *   <li>HTTP-статус 200 (OK)</li>
+     *   <li>Тело ответа содержит список записей</li>
+     *   <li>Вызов timeEntryService.getUserTimeEntries() с правильными параметрами</li>
+     * </ul>
+     */
     @Test
     void getTimeEntries_Success() {
         Long userId = 1L;
@@ -70,6 +106,14 @@ class TimeEntryControllerTest {
         verify(timeEntryService).getUserTimeEntries(userId, from, to);
     }
 
+    /**
+     * Проверяет успешное получение статистики по задачам за период. Ожидаемое поведение:
+     * <ul>
+     *   <li>HTTP-статус 200 (OK)</li>
+     *   <li>Тело ответа содержит данные о продолжительности задач</li>
+     *   <li>Вызов timeEntryService.getUserTaskDurations() с правильными параметрами</li>
+     * </ul>
+     */
     @Test
     void getUserTaskDurations_Success() {
         Long userId = 1L;
@@ -86,6 +130,14 @@ class TimeEntryControllerTest {
         verify(timeEntryService).getUserTaskDurations(userId, from, to);
     }
 
+    /**
+     * Проверяет успешное получение временных интервалов за период. Ожидаемое поведение:
+     * <ul>
+     *   <li>HTTP-статус 200 (OK)</li>
+     *   <li>Тело ответа содержит список интервалов</li>
+     *   <li>Вызов timeEntryService.getUserTimeIntervals() с правильными параметрами</li>
+     * </ul>
+     */
     @Test
     void getUserTimeIntervals_Success() {
         Long userId = 1L;
@@ -102,6 +154,14 @@ class TimeEntryControllerTest {
         verify(timeEntryService).getUserTimeIntervals(userId, from, to);
     }
 
+    /**
+     * Проверяет успешное получение общей продолжительности работы за период. Ожидаемое поведение:
+     * <ul>
+     *   <li>HTTP-статус 200 (OK)</li>
+     *   <li>Тело ответа содержит суммарное время работы</li>
+     *   <li>Вызов timeEntryService.getTotalWorkDuration() с правильными параметрами</li>
+     * </ul>
+     */
     @Test
     void getTotalWorkDuration_Success() {
         Long userId = 1L;
@@ -118,6 +178,13 @@ class TimeEntryControllerTest {
         verify(timeEntryService).getTotalWorkDuration(userId, from, to);
     }
 
+    /**
+     * Проверяет успешную очистку данных трекинга пользователя. Ожидаемое поведение:
+     * <ul>
+     *   <li>HTTP-статус 204 (No Content)</li>
+     *   <li>Вызов timeEntryService.clearUserTrackingData() с правильным ID пользователя</li>
+     * </ul>
+     */
     @Test
     void clearTrackingData_Success() {
         Long userId = 1L;

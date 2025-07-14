@@ -30,9 +30,8 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Сервис для работы с записями времени и трекингом рабочего времени.
- * Обеспечивает функциональность старта/останова трекинга, получения статистики
- * и аналитики по рабочему времени пользователей.
+ * Сервис для работы с записями времени и трекингом рабочего времени. Обеспечивает функциональность старта/останова трекинга, получения
+ * статистики и аналитики по рабочему времени пользователей.
  * <p>Основные функции:
  * <ul>
  *   <li>Трекинг времени работы над задачами</li>
@@ -58,12 +57,11 @@ public class TimeEntryService {
     /**
      * Конструктор сервиса временных записей.
      * @param timeEntryRepository репозиторий для работы с временными записями
-     * @param userRepository репозиторий пользователей
-     * @param taskRepository репозиторий задач
-     * @param timeEntryMapper маппер для преобразования DTO
+     * @param userRepository      репозиторий пользователей
+     * @param taskRepository      репозиторий задач
+     * @param timeEntryMapper     маппер для преобразования DTO
      */
-    public TimeEntryService(
-            TimeEntryRepository timeEntryRepository, UserRepository userRepository, TaskRepository taskRepository,
+    public TimeEntryService(TimeEntryRepository timeEntryRepository, UserRepository userRepository, TaskRepository taskRepository,
             TimeEntryMapper timeEntryMapper) {
         this.timeEntryRepository = timeEntryRepository;
         this.userRepository = userRepository;
@@ -74,7 +72,7 @@ public class TimeEntryService {
     /**
      * Начинает новую запись времени для задачи пользователя
      * @param userId ID пользователя (обязательный)
-     * @param dto DTO с данными для старта трекинга (обязательный)
+     * @param dto    DTO с данными для старта трекинга (обязательный)
      * @return Созданная запись времени
      * @throws ResourceNotFoundException если пользователь или задача не найдены
      */
@@ -132,8 +130,8 @@ public class TimeEntryService {
     /**
      * Получает записи времени пользователя за период
      * @param userId ID пользователя (обязательный)
-     * @param from Начало периода (необязательный)
-     * @param to Конец периода (необязательный)
+     * @param from   Начало периода (необязательный)
+     * @param to     Конец периода (необязательный)
      * @return Список записей времени
      */
     @Transactional(readOnly = true)
@@ -155,11 +153,10 @@ public class TimeEntryService {
             logger.debug("Setting from = start of day: {}", from);
         }
 
-        List<TimeEntryDTO> result =
-                timeEntryRepository.findByUserAndStartTimeBetweenOrderByStartTime(getUser(userId), from, to)
-                        .stream()
-                        .map(timeEntryMapper::toDTO)
-                        .toList();
+        List<TimeEntryDTO> result = timeEntryRepository.findByUserAndStartTimeBetweenOrderByStartTime(getUser(userId), from, to)
+                .stream()
+                .map(timeEntryMapper::toDTO)
+                .toList();
 
         logger.debug("Found {} time entries for user {}", result.size(), userId);
         return result;
@@ -186,8 +183,8 @@ public class TimeEntryService {
     /**
      * Получает суммарное время работы по задачам за период
      * @param userId ID пользователя (обязательный)
-     * @param from Начало периода (необязательный)
-     * @param to Конец периода (необязательный)
+     * @param from   Начало периода (необязательный)
+     * @param to     Конец периода (необязательный)
      * @return Список продолжительностей по задачам
      * @throws IllegalArgumentException если некорректный период
      */
@@ -226,10 +223,9 @@ public class TimeEntryService {
                             String title = (String) row[1];
                             long totalSeconds = ((Number) row[2]).longValue();
 
-                            LocalDateTime firstEntry =
-                                    timeEntryRepository.findFirstByUserIdAndTaskIdOrderByStartTimeAsc(userId, taskId)
-                                            .map(TimeEntry::getStartTime)
-                                            .orElse(null);
+                            LocalDateTime firstEntry = timeEntryRepository.findFirstByUserIdAndTaskIdOrderByStartTimeAsc(userId, taskId)
+                                    .map(TimeEntry::getStartTime)
+                                    .orElse(null);
 
                             return new TaskDurationDTO(taskId, title, formatDuration(totalSeconds), firstEntry);
                         } catch (Exception e) {
@@ -237,8 +233,7 @@ public class TimeEntryService {
                             throw new IllegalArgumentException("Error processing time entry data", e);
                         }
                     })
-                    .sorted(Comparator.comparing(TaskDurationDTO::getFirstEntryTime,
-                            Comparator.nullsLast(Comparator.naturalOrder())))
+                    .sorted(Comparator.comparing(TaskDurationDTO::getFirstEntryTime, Comparator.nullsLast(Comparator.naturalOrder())))
                     .toList();
         } catch (Exception e) {
             logger.error("Failed to get user task durations", e);
@@ -257,8 +252,8 @@ public class TimeEntryService {
     /**
      * Получает временные интервалы работы/неактивности за период
      * @param userId ID пользователя (обязательный)
-     * @param from Начало периода (необязательный)
-     * @param to Конец периода (необязательный)
+     * @param from   Начало периода (необязательный)
+     * @param to     Конец периода (необязательный)
      * @return Список интервалов
      * @throws IllegalArgumentException если некорректный период
      */
@@ -276,8 +271,7 @@ public class TimeEntryService {
             throw new IllegalArgumentException("Start date must be before end date");
         }
 
-        List<TimeEntry> entries =
-                timeEntryRepository.findByUserAndStartTimeBetweenOrderByStartTime(getUser(userId), from, to);
+        List<TimeEntry> entries = timeEntryRepository.findByUserAndStartTimeBetweenOrderByStartTime(getUser(userId), from, to);
 
         logger.debug("Found {} time entries for interval calculation", entries.size());
 
@@ -305,9 +299,7 @@ public class TimeEntryService {
         return result;
     }
 
-    private void addActiveInterval(
-            List<TimeIntervalDTO> result, TimeEntry entry, LocalDateTime start,
-            LocalDateTime end) {
+    private void addActiveInterval(List<TimeIntervalDTO> result, TimeEntry entry, LocalDateTime start, LocalDateTime end) {
         Duration duration = Duration.between(start, end);
         result.add(new TimeIntervalDTO(formatDurationUserTimeIntervals(duration), entry.getTask()
                 .getTitle(), true, start, end));
@@ -321,8 +313,8 @@ public class TimeEntryService {
     /**
      * Получает общее время работы за период
      * @param userId ID пользователя (обязательный)
-     * @param from Начало периода (необязательный)
-     * @param to Конец периода (необязательный)
+     * @param from   Начало периода (необязательный)
+     * @param to     Конец периода (необязательный)
      * @return Общая продолжительность работы
      */
     public TotalWorkDurationDTO getTotalWorkDuration(Long userId, LocalDateTime from, LocalDateTime to) {
@@ -348,8 +340,7 @@ public class TimeEntryService {
             logger.debug("Total work duration in seconds: {}", totalSeconds);
         }
 
-        long daysInPeriod =
-                ChronoUnit.DAYS.between(from.toLocalDate(), to.toLocalDate()) + 1; // +1 чтобы включить оба крайних дня
+        long daysInPeriod = ChronoUnit.DAYS.between(from.toLocalDate(), to.toLocalDate()) + 1; // +1 чтобы включить оба крайних дня
 
         logger.debug("Days in period: {}", daysInPeriod);
 

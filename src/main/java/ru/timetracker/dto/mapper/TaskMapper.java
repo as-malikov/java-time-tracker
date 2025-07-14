@@ -10,8 +10,7 @@ import ru.timetracker.model.Task;
 import ru.timetracker.repository.UserRepository;
 
 /**
- * Маппер для преобразования между сущностью Task и DTO.
- * Использует MapStruct для автоматического преобразования объектов.
+ * Маппер для преобразования между сущностью Task и DTO. Использует MapStruct для автоматического преобразования объектов.
  * <p>Основные преобразования:
  * <ul>
  *   <li>Task ↔ TaskDTO</li>
@@ -21,7 +20,6 @@ import ru.timetracker.repository.UserRepository;
  */
 @Mapper(componentModel = "spring", uses = {UserRepository.class})
 public interface TaskMapper {
-
 
     /**
      * Преобразует сущность Task в TaskDTO
@@ -46,7 +44,7 @@ public interface TaskMapper {
     /**
      * Обновляет сущность Task из TaskUpdateDTO
      * @param taskUpdateDTO DTO с обновленными данными
-     * @param task Сущность для обновления
+     * @param task          Сущность для обновления
      */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)

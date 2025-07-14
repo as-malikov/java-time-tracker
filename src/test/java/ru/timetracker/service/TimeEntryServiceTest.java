@@ -19,7 +19,6 @@ import ru.timetracker.repository.TaskRepository;
 import ru.timetracker.repository.TimeEntryRepository;
 import ru.timetracker.repository.UserRepository;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +27,18 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Тесты для сервиса {@link TimeEntryService}, проверяющие корректность работы с временными записями.
+ * <p>Включает проверки:
+ * <ul>
+ *   <li>Старта и остановки временных записей</li>
+ *   <li>Получения списка записей за период</li>
+ *   <li>Расчета продолжительности работы по задачам</li>
+ *   <li>Формирования временных интервалов</li>
+ *   <li>Очистки данных трекинга</li>
+ *   <li>Обработки ошибочных сценариев (несуществующие пользователи/задачи)</li>
+ * </ul>
+ */
 @ExtendWith(MockitoExtension.class)
 class TimeEntryServiceTest {
 
@@ -43,6 +54,15 @@ class TimeEntryServiceTest {
     @Mock private TimeEntryMapper timeEntryMapper;
     @InjectMocks private TimeEntryService timeEntryService;
 
+    /**
+     * Проверяет создание новой временной записи.
+     * <p>Ожидаемое поведение:
+     * <ul>
+     *   <li>Создает новую запись с текущим временем начала</li>
+     *   <li>Привязывает запись к пользователю и задаче</li>
+     *   <li>Возвращает DTO созданной записи</li>
+     * </ul>
+     */
     @Test
     void startTimeEntry_ShouldCreateNewEntry() {
         TimeEntryCreateDTO dto = new TimeEntryCreateDTO(taskId);
@@ -66,6 +86,16 @@ class TimeEntryServiceTest {
         verify(timeEntryRepository).save(any(TimeEntry.class));
     }
 
+    /**
+     * Проверяет автоматическую остановку активной записи при создании новой.
+     * <p>Ожидаемое поведение:
+     * <ul>
+     *   <li>Находит активную запись пользователя</li>
+     *   <li>Устанавливает время окончания для активной записи</li>
+     *   <li>Создает новую запись</li>
+     *   <li>Возвращает DTO новой записи</li>
+     * </ul>
+     */
     @Test
     void startTimeEntry_ShouldStopPreviousActiveEntry() {
         TimeEntryCreateDTO dto = new TimeEntryCreateDTO(taskId);
@@ -91,6 +121,14 @@ class TimeEntryServiceTest {
         verify(timeEntryRepository, times(2)).save(any(TimeEntry.class));
     }
 
+    /**
+     * Проверяет обработку случая, когда задача не принадлежит пользователю.
+     * <p>Ожидаемое поведение:
+     * <ul>
+     *   <li>Генерирует ResourceNotFoundException</li>
+     *   <li>Не создает новую запись</li>
+     * </ul>
+     */
     @Test
     void startTimeEntry_ShouldThrowException_WhenTaskNotBelongsToUser() {
         TimeEntryCreateDTO dto = new TimeEntryCreateDTO(taskId);
@@ -108,6 +146,15 @@ class TimeEntryServiceTest {
         assertThrows(ResourceNotFoundException.class, () -> timeEntryService.startTimeEntry(userId, dto));
     }
 
+    /**
+     * Проверяет остановку активной временной записи.
+     * <p>Ожидаемое поведение:
+     * <ul>
+     *   <li>Находит активную запись пользователя</li>
+     *   <li>Устанавливает время окончания записи</li>
+     *   <li>Возвращает DTO обновленной записи</li>
+     * </ul>
+     */
     @Test
     void stopTimeEntry_ShouldStopActiveEntry() {
         User user = new User();
@@ -126,6 +173,14 @@ class TimeEntryServiceTest {
         verify(timeEntryRepository).save(activeEntry);
     }
 
+    /**
+     * Проверяет обработку случая отсутствия активной записи при остановке.
+     * <p>Ожидаемое поведение:
+     * <ul>
+     *   <li>Генерирует IllegalStateException</li>
+     *   <li>Не выполняет сохранение</li>
+     * </ul>
+     */
     @Test
     void stopTimeEntry_ShouldThrowException_WhenNoActiveEntry() {
         User user = new User();
@@ -135,6 +190,15 @@ class TimeEntryServiceTest {
         assertThrows(IllegalStateException.class, () -> timeEntryService.stopTimeEntry(userId));
     }
 
+    /**
+     * Проверяет получение временных записей пользователя за указанный период.
+     * <p>Ожидаемое поведение:
+     * <ul>
+     *   <li>Возвращает список DTO записей</li>
+     *   <li>Фильтрует записи по дате начала</li>
+     *   <li>Сортирует записи по времени начала</li>
+     * </ul>
+     */
     @Test
     void getUserTimeEntries_ShouldReturnEntriesForPeriod() {
         User user = new User();
@@ -152,6 +216,15 @@ class TimeEntryServiceTest {
         assertEquals(entryDTO, result.get(0));
     }
 
+    /**
+     * Проверяет использование периода по умолчанию при отсутствии параметров.
+     * <p>Ожидаемое поведение:
+     * <ul>
+     *   <li>Устанавливает период по умолчанию</li>
+     *   <li>Вызывает репозиторий с корректными параметрами</li>
+     *   <li>Не генерирует исключений</li>
+     * </ul>
+     */
     @Test
     void getUserTimeEntries_ShouldUseDefaultPeriod_WhenNull() {
         User user = new User();
@@ -163,6 +236,16 @@ class TimeEntryServiceTest {
                 any(LocalDateTime.class), any(LocalDateTime.class));
     }
 
+    /**
+     * Проверяет расчет продолжительности работы по задачам.
+     * <p>Ожидаемое поведение:
+     * <ul>
+     *   <li>Группирует записи по задачам</li>
+     *   <li>Суммирует продолжительность для каждой задачи</li>
+     *   <li>Форматирует продолжительность в читаемый вид</li>
+     *   <li>Возвращает список DTO с результатами</li>
+     * </ul>
+     */
     @Test
     void getUserTaskDurations_ShouldCalculateDurations() {
         Object[] dbRow = new Object[]{taskId, "Task 1", 3600L}; // 1 hour
@@ -180,6 +263,15 @@ class TimeEntryServiceTest {
                 .getDuration());
     }
 
+    /**
+     * Проверяет формирование временных интервалов работы.
+     * <p>Ожидаемое поведение:
+     * <ul>
+     *   <li>Разбивает записи на интервалы работы</li>
+     *   <li>Добавляет информацию о задаче</li>
+     *   <li>Возвращает список DTO интервалов</li>
+     * </ul>
+     */
     @Test
     void getUserTimeIntervals_ShouldCalculateIntervals() {
         User user = new User();
@@ -196,13 +288,22 @@ class TimeEntryServiceTest {
 
         List<TimeIntervalDTO> result = timeEntryService.getUserTimeIntervals(userId, startTime, endTime);
 
-        assertEquals(1, result.size()); // 1 активный + 1 неактивный интервал
+        assertEquals(1, result.size());
         assertTrue(result.get(0)
                 .isWorkInterval());
         assertEquals("Task 1", result.get(0)
                 .getTaskTitle());
     }
 
+    /**
+     * Проверяет расчет общего времени работы.
+     * <p>Ожидаемое поведение:
+     * <ul>
+     *   <li>Суммирует продолжительность всех записей</li>
+     *   <li>Форматирует результат в читаемый вид</li>
+     *   <li>Возвращает DTO с общей продолжительностью</li>
+     * </ul>
+     */
     @Test
     void getTotalWorkDuration_ShouldCalculateTotal() {
         when(timeEntryRepository.sumWorkDurationByUserAndPeriod(userId, startTime, endTime)).thenReturn(
@@ -214,6 +315,15 @@ class TimeEntryServiceTest {
         assertEquals(7200L, result.getTotalSeconds());
     }
 
+    /**
+     * Проверяет очистку данных трекинга пользователя.
+     * <p>Ожидаемое поведение:
+     * <ul>
+     *   <li>Удаляет все временные записи пользователя</li>
+     *   <li>Проверяет наличие связанных задач</li>
+     *   <li>Не генерирует исключений при успешном выполнении</li>
+     * </ul>
+     */
     @Test
     void clearUserTrackingData_ShouldDeleteAllUserData() {
         User user = new User();
@@ -225,6 +335,15 @@ class TimeEntryServiceTest {
         verify(taskRepository).findByUser(user);
     }
 
+    /**
+     * Проверяет обработку частично указанного периода (только начало или конец).
+     * <p>Ожидаемое поведение:
+     * <ul>
+     *   <li>Корректно обрабатывает указание только начальной даты</li>
+     *   <li>Корректно обрабатывает указание только конечной даты</li>
+     *   <li>Использует значения по умолчанию для отсутствующих параметров</li>
+     * </ul>
+     */
     @Test
     void getUserTimeEntries_ShouldHandleSingleParameter() {
         User user = new User();
@@ -238,6 +357,14 @@ class TimeEntryServiceTest {
                 eq(endTime));
     }
 
+    /**
+     * Проверяет обработку отсутствия данных по продолжительности задач.
+     * <p>Ожидаемое поведение:
+     * <ul>
+     *   <li>Возвращает пустой список</li>
+     *   <li>Не генерирует исключений</li>
+     * </ul>
+     */
     @Test
     void getUserTaskDurations_ShouldHandleEmptyResults() {
         when(timeEntryRepository.findTaskDurationsByUserAndPeriod(userId, startTime, endTime)).thenReturn(List.of());
@@ -246,6 +373,15 @@ class TimeEntryServiceTest {
         assertTrue(result.isEmpty());
     }
 
+    /**
+     * Проверяет обработку нулевого результата при расчете общего времени.
+     * <p>Ожидаемое поведение:
+     * <ul>
+     *   <li>Возвращает нулевую продолжительность</li>
+     *   <li>Форматирует результат как "00:00"</li>
+     *   <li>Не генерирует исключений</li>
+     * </ul>
+     */
     @Test
     void getTotalWorkDuration_ShouldHandleNullResult() {
         when(timeEntryRepository.sumWorkDurationByUserAndPeriod(userId, startTime, endTime)).thenReturn(null);
