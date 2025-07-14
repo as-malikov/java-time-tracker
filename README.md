@@ -12,27 +12,25 @@
     - [Настройка базы данных](#2-настройка-базы-данных-)
     - [Сборка и запуск приложения](#3-сборка-и-запуск-приложения)
     - [Тестирование и покрытие кода](#4-тестирование-и-покрытие-кода)
-    - [Генерация документации](#5-генерация-документации)
+    - [Генерация документации Javadoc](#5-генерация-документации)
     - [Настройка логирования](#6-настройка-логирования)
 4. [Форматы данных](#форматы-данных)
 5. [Документация API](#документация-api)
-    - [Пользователи](#пользователи)
-    - [Задачи](#задачи)
-    - [Учет времени](#учет-времени)
+    - [Доступ к Swagger UI](#Доступ к Swagger UI)
 6. [Примеры запросов](#примеры-запросов)
 7. [Коды ответов](#коды-ответов)
 8. [Полная таблица endpoint-ов](#полная-таблица-endpointов)
 
-## Общее описание
+## 1. Общее описание
 
 REST API для учета рабочего времени, управления задачами и пользователями. Не требует аутентификации.
 
-## Требования
-### Основные требования
+## 2. Требования
+### 2.1 Основные требования
 * Java 21 (указано в <java.version>21</java.version>)
 * Maven 3.6+ (рекомендуется последняя версия)
 * PostgreSQL 14+ (основная СУБД) или H2 Database (для тестирования/разработки)
-### Технологии и фреймворки
+### 2.2 Технологии и фреймворки
 * Spring Boot 3.5.3 (родительский POM)
 * Spring Data JPA (для работы с БД)
 * Spring Web MVC (REST API)
@@ -42,20 +40,20 @@ REST API для учета рабочего времени, управления
 * Hibernate Validator 8.0.1 (валидация сущностей)
 * Springdoc OpenAPI 2.5.0 (документация API)
 * Log4j2 2.20.0 (логирование)
-### Тестирование
+### 2.3 Тестирование
 * JUnit 5 (основной фреймворк тестирования)
 * Mockito 5.18.0 (мокирование зависимостей)
 * JaCoCo 0.8.11 (анализ покрытия кода)
 
-## Установка и запуск
+## 3. Установка и запуск
 
-### 1. Клонирование репозитория
+### 3.1 Клонирование репозитория
 ```bash
 git clone https://github.com/as-malikov/java-time-tracker.git
 cd java-time-tracker
 ```
 
-### 2. Настройка базы данных  
+### 3.2 Настройка базы данных  
 ```src/main/resources/application.properties:```
 
 #### Для PostgreSQL
@@ -89,7 +87,7 @@ spring.jpa.hibernate.ddl-auto=update
 spring.jpa.properties.hibernate.format_sql=true
 ```
 
-### 3. Сборка и запуск приложения
+### 3.3 Сборка и запуск приложения
 #### Сборка проекта:
 ```bash
 mvn clean install
@@ -101,7 +99,7 @@ java -jar time-tracker-0.0.1-SNAPSHOT.jar
 Приложение будет доступно по адресу:  
 ```http://localhost:8080```
 
-### 4. Тестирование и покрытие кода
+### 3.4 Тестирование и покрытие кода
 #### Запуск unit-тестов:
 ```bash 
 mvn clean test
@@ -113,14 +111,14 @@ mvn jacoco:report
 Отчет будет доступен по пути:  
 ```target/site/jacoco/index.html```
 
-### 5. Генерация документации
+### 3.6 Генерация документации Javadoc
 #### Создание Javadoc:
 ```bash
 mvn javadoc:javadoc
 ```
 Документация будет доступна по пути:  
 ```target/site/apidocs/index.html```
-### 6. Настройка логирования
+### 3.7 Настройка логирования
 Добавьте в ```application.yml```:
 ```yaml
 logging:
@@ -132,304 +130,460 @@ logging:
     ru.timetracker: DEBUG
 ```
 
-## Форматы данных
+## 4. Форматы данных
 
 * Дата: **YYYY-MM-DD (2023-12-31)**
 * Дата и время: **YYYY-MM-DDTHH:MM:SS (2023-12-31T23:59:59)**
 * Продолжительность: **HH:MM (02:30)**
 
-## Документация API
+## 5. Документация API
+Приложение предоставляет интерактивную документацию API с использованием Swagger UI. С её помощью вы можете:
 
-### Пользователи (User)
+- Изучить все доступные эндпоинты
+- Тестировать API-запросы прямо из браузера
+- Просматривать модели запросов и ответов
+- Видеть примеры значений и коды статусов
 
-**Создать пользователя**
+### 5.1 Доступ к Swagger UI
 
+Интерфейс Swagger UI доступен по адресу: http://localhost:8080/swagger-ui/index.html#/
+
+## 6. Примеры запросов
+### 6.1 API User (Пользователь)
+
+**6.1.1 Создание нового пользователя**  
+**POST**  ```/api/v1/users```
+
+**Пример запроса:**
 ```bash
-POST /api/v1/users
+curl --location 'http://localhost:8080/api/v1/users' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "Иван Иванов",
+    "email": "ivan@example.com"
+}'
 ```
 
-Тело запроса:
-
+**Пример ответа:**
 ```json
 {
-  "name": "Иван Иванов",
-  "email": "ivan@example.com"
-}
-```
-
-Ответ:
-
-```json
-{
-  "id": 1,
-  "name": "Иван Иванов",
-  "email": "ivan@example.com",
-  "createdAt": "2023-01-15T14:30:00"
-}
-```
-
-**Получить всех пользователей**
-
-```bash
-GET /api/v1/users
-```
-
-Ответ:
-
-```json
-[
-  {
     "id": 1,
     "name": "Иван Иванов",
     "email": "ivan@example.com",
-    "createdAt": "2023-01-15T14:30:00"
-  }
+    "createdAt": "2025-07-14T16:38:42.565329638"
+}
+```
+
+**6.1.2 Получение всех пользователей:**
+**GET** ```/api/v1/users```
+
+**Пример запроса:**
+```bash
+curl --location 'http://localhost:8080/api/v1/users'
+```
+
+**Пример ответа:**
+```json
+[
+   {
+      "id": 1,
+      "name": "Иван Иванов",
+      "email": "ivan@example.com",
+      "createdAt": "2025-07-14T16:38:42.56533"
+   }
 ]
 ```
 
-**Изменить пользователя**
+**6.1.3 Получение пользователя по ID:**  
+**GET** ```/api/v1/users/{id}```  
 
+**Пример запроса:**
 ```bash
-PUT /api/v1/users/{userId}
+curl --location 'http://localhost:8080/api/v1/users/1'
 ```
-
-Тело запроса:
-
+**Пример ответа:**
 ```json
 {
-  "name": "Иван Иванов",
-  "email": "ivan@example.com"
+   "id": 1,
+   "name": "Иван Иванов",
+   "email": "ivan@example.com",
+   "createdAt": "2025-07-14T16:38:42.56533"
 }
 ```
 
-Ответ:
+**6.1.4 Обновление пользователя**  
+**PUT**  ```/api/v1/users/{id}```
 
+**Пример запроса:**
+```bash
+curl --location --request PUT 'http://localhost:8080/api/v1/users/1' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "Петр Петров",
+    "email": "petr@mail.ru"
+}'
+```
+
+**Пример ответа:**
 ```json
 {
-  "id": 1,
-  "name": "Иван Иванов",
-  "email": "ivan@example.com",
-  "createdAt": "2023-01-15T14:30:00"
+   "id": 1,
+   "name": "Петр Петров",
+   "email": "petr@mail.ru",
+   "createdAt": "2025-07-14T16:38:42.56533"
 }
 ```
 
-**Удалить пользователя и всю информацию о пользователе**
+**6.1.5 Удаление пользователя:**  
+**DELETE** ```/api/v1/users/{id}```
 
+**Пример запроса:**
 ```bash
-DELETE /api/v1/users/{userId}
+curl --location --request DELETE 'http://localhost:8080/api/v1/users/1'
+```
+**Пример ответа:**
+```json
+204 No Content
 ```
 
-Ответ: **204 No Content**
+### 6.2 API Task (Задача)
 
-### Задачи (Task)
+**6.2.1 Создание новой задачи**  
+**POST**  ```/api/v1/users/{userId}/tasks```
 
-**Создать задачу**
-
+**Пример запроса:**
 ```bash
-POST /api/v1/users/{userId}/tasks
-```
-
-**Тело запроса:**
-
-```json
-{
-  "title": "Разработка API",
-  "description": "Создание методов для учета времени"
-}
-```
-
-**Ответ:**
-
-```json
-{
-  "id": 1,
-  "title": "Разработка API",
-  "description": "Создание методов для учета времени",
-  "createdAt": "2023-01-15T14:30:00",
-  "userId": 1,
-  "active": true
-}
-```
-
-**Получить задачи пользователя**
-
-```bash
-GET /api/v1/users/{userId}/tasks?includeInactive=false
-```
-
-**Ответ:**
-
-```json
-[
-  {
-    "id": 1,
+curl --location 'http://localhost:8080/api/v1/users/1/tasks' \
+--header 'Content-Type: application/json' \
+--data '{
     "title": "Разработка API",
-    "description": "Создание методов для учета времени",
-    "createdAt": "2023-01-15T14:30:00",
-    "userId": 1,
-    "active": true
-  }
-]
+    "description": "Создание приложения учета времени"
+}'
 ```
 
-**Удалить всю информацию о пользователе**
-
-```bash
-DELETE /api/v1/users/{userId}/tasks
-```
-
-Ответ: **204 No Content**
-
-### Учет времени (TimeEntry)
-
-**Начать учет времени**
-
-```bash
-POST /api/v1/users/{userId}/time-entries/start
-```
-
-**Тело запроса:**
-
+**Пример ответа:**
 ```json
 {
-  "taskId": 1
+   "id": 1,
+   "title": "Разработка API",
+   "description": "Создание приложения учета времени",
+   "createdAt": "2025-07-14T17:05:35.670944347",
+   "userId": 1,
+   "active": true
 }
 ```
 
-**Ответ:**
+**6.2.2 Получение всех задач пользователя:**
+**GET** ```/api/v1/users/1/tasks```
 
-```json
-{
-  "id": 1,
-  "startTime": "2023-01-15T14:30:00",
-  "userId": 1,
-  "taskId": 1,
-  "taskTitle": "Разработка API",
-  "active": true
-}
-```
-
-**Остановить учет времени**
-
+**Пример запроса:**
 ```bash
-POST /api/v1/users/{userId}/time-entries/{timeEntryId}/stop
+curl --location 'http://localhost:8080/api/v1/users/1/tasks?includeInactive=false'
 ```
 
-**Ответ:**
-
-```json
-{
-  "id": 1,
-  "startTime": "2023-01-15T14:30:00",
-  "endTime": "2023-01-15T15:30:00",
-  "duration": "01:00",
-  "userId": 1,
-  "taskId": 1,
-  "taskTitle": "Разработка API",
-  "active": false
-}
-```
-
-**Показать все трудозатраты пользователя за период (Задача-Сумма)**
-
-```bash
-GET /api/v1/users/{userId}/time-entries/task-durations?from=2025-07-09T00:00&to=2025-07-09T23:59
-```
-
-Ответ:
-
+**Пример ответа:**
 ```json
 [
-  {
-    "taskId": 1,
-    "taskTitle": "Разработка API",
-    "duration": "28:01",
-    "firstEntryTime": "2023-01-15T14:30:00"
-  }
+   {
+      "id": 1,
+      "title": "Разработка API",
+      "description": "Создание приложения учета времени",
+      "createdAt": "2025-07-14T17:05:35.670944",
+      "userId": 1,
+      "active": true
+   }
 ]
 ```
 
-**Показать все временные интервалы занятые работой за период (Временной интервал - Задача)**
+**6.2.3 Получение конкретной задачи пользователя:**  
+**GET** ```/api/v1/users/{userId}/tasks/{taskId}```
 
+**Пример запроса:**
 ```bash
-GET /api/v1/users/{userId}/time-entries/time-intervals?from=2025-07-09T00:00&to=2025-07-09T23:59
+curl --location 'http://localhost:8080/api/v1/users/1/tasks/1'
 ```
-
-Ответ:
-
-```json
-[
-  {
-    "period": "13:36",
-    "taskTitle": "Неактивность",
-    "startTime": "2025-07-09T00:00:00",
-    "endTime": "2025-07-09T13:36:05.996152",
-    "workInterval": false
-  },
-  {
-    "period": "00:06",
-    "taskTitle": "Разработка API",
-    "startTime": "2025-07-09T13:36:05.996152",
-    "endTime": "2025-07-09T13:42:29.612918449",
-    "workInterval": true
-  },
-  {
-    "period": "10:16",
-    "taskTitle": "Неактивность",
-    "startTime": "2025-07-09T13:42:29.612918449",
-    "endTime": "2025-07-09T23:59:00",
-    "workInterval": false
-  }
-]
-```
-
-**Показать сумму трудозатрат по всем задачам пользователя за период**
-
-```bash
-GET /api/v1/users/{userId}/time-entries/total-work-duration?from=2025-07-09T00:00&to=2025-07-09T23:59
-```
-
-**Ответ:**
-
+**Пример ответа:**
 ```json
 {
-  "totalDuration": "01:56",
-  "totalSeconds": 6989,
-  "days": 1,
-  "periodStart": "2025-07-09T00:00:00",
-  "periodEnd": "2025-07-09T23:59:00"
+   "id": 1,
+   "title": "Разработка API",
+   "description": "Создание приложения учета времени",
+   "createdAt": "2025-07-14T17:05:35.670944",
+   "userId": 1,
+   "active": true
 }
 ```
 
-**Очистить данные трекинга пользователя**
+**6.2.4 Обновление задачи**  
+**PUT**  ```/api/v1/users/{userId}/tasks/{taskId}```
 
+**Пример запроса:**
 ```bash
-DELETE /api/v1/users/{userId}/time-entries/tracking-data
+curl --location --request PUT 'http://localhost:8080/api/v1/users/1/tasks/1' \
+--header 'Content-Type: application/json' \
+--data '{
+    "title": "Разработка API v2.0",
+    "description": "Создание приложения учета времени v2.0"
+}'
 ```
 
-Ответ: **204 No Content**
-
-## Примеры запросов
-
-**1. Получить временные интервалы:**
-
-```bash
-curl -X GET "http://localhost:8080/api/v1/users/1/time-entries/time-intervals?from=2023-01-01&to=2023-01-31"
+**Пример ответа:**
+```json
+{
+   "id": 1,
+   "title": "Разработка API v2.0",
+   "description": "Создание приложения учета времени v2.0",
+   "createdAt": null,
+   "userId": 1,
+   "active": false
+}
 ```
 
-**2. Получить продолжительность по задачам:**
+**6.2.5 Переключение статуса задачи**  
+**PATCH**  ```/api/v1/users/{userId}/tasks/{taskId}/toggle-status```
 
+**Пример запроса:**
 ```bash
-curl -X GET "http://localhost:8080/api/v1/users/1/time-entries/task-durations"
+curl --location --request PATCH 'http://localhost:8080/api/v1/users/1/tasks/1/toggle-status'
 ```
 
-**3. Переключить статус задачи:**
-
-```bash
-curl -X PATCH http://localhost:8080/api/v1/users/1/tasks/1/toggle-status
+**Пример ответа:**
+```json
+{
+   "id": 1,
+   "title": "Разработка API v2.0",
+   "description": "Создание приложения учета времени v2.0",
+   "createdAt": "2025-07-14T17:05:35.670944",
+   "userId": 1,
+   "active": true
+}
 ```
 
-## Коды ответов
+**6.2.6 Удаление задачи по ID:**  
+**DELETE** ```/api/v1/users/{userId}/tasks/{taskId}```
+
+**Пример запроса:**
+```bash
+curl --location --request DELETE 'http://localhost:8080/api/v1/users/1/tasks/1'
+```
+**Пример ответа:**
+```json
+204 No Content
+```
+
+**6.2.7 Удаление всех задач пользователя:**  
+**DELETE** ```/api/v1/users/{userId}/tasks```
+
+**Пример запроса:**
+```bash
+curl --location --request DELETE 'http://localhost:8080/api/v1/users/1/tasks'
+```
+**Пример ответа:**
+```json
+204 No Content
+```
+
+### 6.3 API TimeEntry (Запись времени)
+
+**6.3.1 Начать запись времени:**  
+**POST**  ```/api/v1/users/{userId}/time-entries/start```
+
+**Пример запроса:**
+```bash
+curl --location 'http://localhost:8080/api/v1/users/1/time-entries/start' \
+--header 'Content-Type: application/json' \
+--data '{
+    "taskId": 1
+}'
+```
+
+**Пример ответа:**
+```json
+{
+   "id": 1,
+   "startTime": "2025-07-14T17:32:45.903323303",
+   "endTime": null,
+   "duration": "PT0.001516114S",
+   "userId": 1,
+   "taskId": 1,
+   "taskTitle": "Разработка API",
+   "active": true
+}
+```
+
+**6.3.2 Остановить запись времени:**  
+**POST**  ```/api/v1/users/{userId}/time-entries/{timeEntryId}/stop```
+
+**Пример запроса:**
+```bash
+curl --location 'http://localhost:8080/api/v1/users/1/time-entries/1/stop' \
+--header 'Content-Type: application/json' \
+--data '{
+    "taskId": 1
+}'
+```
+
+**Пример ответа:**
+```json
+{
+   "id": 1,
+   "startTime": "2025-07-14T17:32:45.903323",
+   "endTime": "2025-07-14T17:39:23.21481691",
+   "duration": "PT6M37.31149391S",
+   "userId": 1,
+   "taskId": 1,
+   "taskTitle": "Разработка API",
+   "active": false
+}
+```
+
+**6.3.3 Получить записей времени за период:**  
+**GET** ```/api/v1/users/{userId}/time-entries```
+
+**Параметры:**
+* ```from``` - начало периода (необязательный)
+* ```to``` - конец периода (необязательный)
+
+**Пример запроса:**
+```bash
+curl --location 'http://localhost:8080/api/v1/users/1/time-entries?from=2025-07-14T00:00:00&to=2025-07-14T23:59:59'
+```
+**Пример ответа:**
+```json
+[
+   {
+      "id": 1,
+      "startTime": "2025-07-14T17:32:45.903323",
+      "endTime": "2025-07-14T17:39:23.214817",
+      "duration": "PT6M37.311494S",
+      "userId": 1,
+      "taskId": 1,
+      "taskTitle": "Разработка API",
+      "active": false
+   },
+   {
+      "id": 2,
+      "startTime": "2025-07-14T17:43:43.549708",
+      "endTime": null,
+      "duration": "PT52.88758035S",
+      "userId": 1,
+      "taskId": 1,
+      "taskTitle": "Разработка API",
+      "active": true
+   }
+]
+```
+
+**6.3.4 Получить продолжительность по задачам:**  
+**GET** ```/api/v1/users/{userId}/time-entries/task-durations```
+
+**Параметры:**
+* ```from``` - начало периода (необязательный)
+* ```to``` - конец периода (необязательный)
+
+**Пример запроса:**
+```bash
+curl --location 'http://localhost:8080/api/v1/users/1/time-entries/task-durations?from=2025-07-14T00:00&to=2025-07-14T23:59'
+```
+**Пример ответа:**
+```json
+[
+   {
+      "taskId": 1,
+      "taskTitle": "Разработка API",
+      "duration": "00:09",
+      "firstEntryTime": "2025-07-14T17:32:45.903323"
+   }
+]
+```
+
+**6.3.5 Получить временные интервалы:**  
+**GET** ```/api/v1/users/{userId}/time-entries/time-intervals```
+
+**Параметры:**
+* ```from``` - начало периода (необязательный)
+* ```to``` - конец периода (необязательный)
+
+**Пример запроса:**
+```bash
+curl --location 'http://localhost:8080/api/v1/users/1/time-entries/time-intervals?from=2025-07-14T00:00&to=2025-07-14T23:59'
+```
+**Пример ответа:**
+```json
+[
+   {
+      "period": "17:32",
+      "taskTitle": "Неактивность",
+      "startTime": "2025-07-14T00:00:00",
+      "endTime": "2025-07-14T17:32:45.903323",
+      "workInterval": false
+   },
+   {
+      "period": "00:06",
+      "taskTitle": "Разработка API",
+      "startTime": "2025-07-14T17:32:45.903323",
+      "endTime": "2025-07-14T17:39:23.214817",
+      "workInterval": true
+   },
+   {
+      "period": "00:04",
+      "taskTitle": "Неактивность",
+      "startTime": "2025-07-14T17:39:23.214817",
+      "endTime": "2025-07-14T17:43:43.549708",
+      "workInterval": false
+   },
+   {
+      "period": "00:05",
+      "taskTitle": "Разработка API",
+      "startTime": "2025-07-14T17:43:43.549708",
+      "endTime": "2025-07-14T17:49:12.33688629",
+      "workInterval": true
+   },
+   {
+      "period": "06:09",
+      "taskTitle": "Неактивность",
+      "startTime": "2025-07-14T17:49:12.33688629",
+      "endTime": "2025-07-14T23:59:00",
+      "workInterval": false
+   }
+]
+```
+
+**6.3.6 Получить общее время работы:**  
+**GET** ```/api/v1/users/{userId}/time-entries/total-work-duration```
+
+**Параметры:**
+* ```from``` - начало периода (необязательный)
+* ```to``` - конец периода (необязательный)
+
+**Пример запроса:**
+```bash
+curl --location 'http://localhost:8080/api/v1/users/1/time-entries/total-work-duration?from=2025-07-14T00:00&to=2025-07-14T23:59'
+```
+**Пример ответа:**
+```json
+{
+   "totalDuration": "00:14",
+   "totalSeconds": 847,
+   "days": 1,
+   "periodStart": "2025-07-14T00:00:00",
+   "periodEnd": "2025-07-14T23:59:00"
+}
+```
+
+**6.3.7 Очистить данные трекинга пользователя:**  
+**DELETE** ```/api/v1/users/{userId}/time-entries/tracking-data```
+
+**Пример запроса:**
+```bash
+curl --location --request DELETE 'http://localhost:8080/api/v1/users/1/time-entries/tracking-data'
+```
+**Пример ответа:**
+```json
+204 No Content
+```
+
+## 7. Коды ответов
 
 | Код | Описание        |
 |-----|-----------------|
@@ -440,9 +594,9 @@ curl -X PATCH http://localhost:8080/api/v1/users/1/tasks/1/toggle-status
 | 404 | Не найдено      |
 | 500 | Ошибка сервера  |
 
-## Полная таблица endpoint'ов
+## 8.Полная таблица endpoint'ов
 
-| Метод  | 	Endpoint                                                | 	Описание                              |
+| Метод  | 	Endpoint                                                | 	Описание                              | Curl
 |--------|----------------------------------------------------------|----------------------------------------|
 | GET    | 	/api/v1/users                                           | 	Получить всех пользователей           |
 | POST   | 	/api/v1/users                                           | 	Создать пользователя                  |
