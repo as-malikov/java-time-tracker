@@ -42,7 +42,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/users/{userId}/time-entries")
 @Data
-@Tag(name = "Time Entries", description = "API для управления записями времени и трекингом рабочего времени")
+@Tag(name = "Time Tracking", description = "API for managing time entries and work tracking")
 public class TimeEntryController {
     private static final Logger logger = LogManager.getLogger(TimeEntryController.class);
     private final TimeEntryService timeEntryService;
@@ -61,12 +61,12 @@ public class TimeEntryController {
      * @param dto    Данные для старта трекинга (обязательный, валидируется)
      * @return Созданная запись времени со статусом 201 или ошибки 400/404/500
      */
-    @Operation(summary = "Начать запись времени", description = "Создает новую запись времени с указанием задачи и времени начала")
-    @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "Запись времени успешно создана",
+    @Operation(summary = "Start time tracking", description = "Creates a new time entry for specified task with start time")
+    @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "Time entry created successfully",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = TimeEntryDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Некорректные входные данные"),
-            @ApiResponse(responseCode = "404", description = "Пользователь или задача не найдены"),
-            @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")})
+            @ApiResponse(responseCode = "400", description = "Invalid input data"),
+            @ApiResponse(responseCode = "404", description = "User or task not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")})
     @PostMapping("/start")
     public ResponseEntity<TimeEntryDTO> startTimeEntry(
             @Parameter(description = "ID пользователя", required = true) @PathVariable Long userId,
@@ -89,26 +89,26 @@ public class TimeEntryController {
 
     /**
      * Останавливает активную запись времени
-     * @param timeEntryId ID записи времени для остановки (обязательный)
+     * @param userId ID записи времени для остановки (обязательный)
      * @return Обновленная запись времени со статусом 200 или ошибки 404/409/500
      */
-    @Operation(summary = "Остановить запись времени", description = "Останавливает активную запись времени и фиксирует продолжительность")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Запись времени успешно остановлена",
+    @Operation(summary = "Stop time tracking", description = "Stops active time entry and records duration")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Time entry stopped successfully",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = TimeEntryDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Запись времени не найдена"),
-            @ApiResponse(responseCode = "409", description = "Запись времени уже остановлена"),
-            @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")})
-    @PostMapping("/{timeEntryId}/stop")
+            @ApiResponse(responseCode = "404", description = "Active time entry not found"),
+            @ApiResponse(responseCode = "409", description = "Time entry already stopped"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")})
+    @PostMapping("/stop")
     public ResponseEntity<TimeEntryDTO> stopTimeEntry(
-            @Parameter(description = "ID записи времени для остановки", required = true) @PathVariable Long timeEntryId) {
-        logger.info("Stopping time entry ID: {}", timeEntryId);
+            @Parameter(description = "ID пользователя", required = true) @PathVariable Long userId) {
+        logger.info("Stopping time entry for userID: {}", userId);
 
         try {
-            TimeEntryDTO timeEntry = timeEntryService.stopTimeEntry(timeEntryId);
-            logger.info("Successfully stopped time entry ID: {}. Duration: {} minutes", timeEntryId, timeEntry.getDuration());
+            TimeEntryDTO timeEntry = timeEntryService.stopTimeEntry(userId);
+            logger.info("Successfully stopped time entry for userID: {}. Duration: {} minutes", userId, timeEntry.getDuration());
             return ResponseEntity.ok(timeEntry);
         } catch (Exception e) {
-            logger.error("Error stopping time entry ID: {}. Error: {}", timeEntryId, e.getMessage(), e);
+            logger.error("Error stopping time entry for userID: {}. Error: {}", userId, e.getMessage(), e);
             return ResponseEntity.internalServerError()
                     .build();
         }
@@ -121,18 +121,17 @@ public class TimeEntryController {
      * @param to     Конец периода (необязательный)
      * @return Список записей со статусом 200 или ошибки 400/500
      */
-    @Operation(summary = "Получить записи времени", description = "Возвращает список записей времени пользователя за указанный период")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Список записей времени успешно получен",
+    @Operation(summary = "Get time entries", description = "Returns list of user's time entries for specified period")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Time entries retrieved successfully",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = TimeEntryDTO.class, type = "array"))),
-            @ApiResponse(responseCode = "400", description = "Некорректные параметры даты"),
-            @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")})
+            @ApiResponse(responseCode = "400", description = "Invalid date parameters"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")})
     @GetMapping
-    public ResponseEntity<List<TimeEntryDTO>> getTimeEntries(
-            @Parameter(description = "ID пользователя", required = true) @PathVariable Long userId,
-            @Parameter(description = "Начальная дата периода (формат ISO 8601)", example = "2023-01-01T00:00:00")
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
-            @Parameter(description = "Конечная дата периода (формат ISO 8601)", example = "2023-12-31T23:59:59")
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
+    public ResponseEntity<List<TimeEntryDTO>> getTimeEntries(@Parameter(description = "User ID", required = true) @PathVariable Long userId,
+            @Parameter(description = "Start date (ISO 8601 format)", example = "2023-01-01T00:00:00") @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @Parameter(description = "End date (ISO 8601 format)", example = "2023-12-31T23:59:59") @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
 
         logger.debug("Getting time entries for user {} (from: {}, to: {})", userId, from, to);
 
@@ -154,19 +153,18 @@ public class TimeEntryController {
      * @param to     Конец периода (необязательный)
      * @return Список продолжительностей по задачам со статусом 200 или ошибки 400/500
      */
-    @Operation(summary = "Получить продолжительность по задачам",
-            description = "Возвращает суммарную продолжительность работы по каждой задаче за указанный период")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Данные о продолжительности успешно получены",
+    @Operation(summary = "Get task durations", description = "Returns total work duration per task for specified period")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Task durations retrieved successfully",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskDurationDTO.class, type = "array"))),
-            @ApiResponse(responseCode = "400", description = "Некорректные параметры даты"),
-            @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")})
+            @ApiResponse(responseCode = "400", description = "Invalid date parameters"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")})
     @GetMapping("/task-durations")
     public ResponseEntity<List<TaskDurationDTO>> getUserTaskDurations(
-            @Parameter(description = "ID пользователя", required = true) @PathVariable Long userId,
-            @Parameter(description = "Начальная дата периода (формат ISO 8601)", example = "2023-01-01T00:00:00")
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
-            @Parameter(description = "Конечная дата периода (формат ISO 8601)", example = "2023-12-31T23:59:59")
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
+            @Parameter(description = "User ID", required = true) @PathVariable Long userId,
+            @Parameter(description = "Start date (ISO 8601 format)", example = "2023-01-01T00:00:00") @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @Parameter(description = "End date (ISO 8601 format)", example = "2023-12-31T23:59:59") @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
 
         logger.debug("Getting task durations for user {} (from: {}, to: {})", userId, from, to);
 
@@ -188,19 +186,18 @@ public class TimeEntryController {
      * @param to     Конец периода (необязательный)
      * @return Список интервалов работы со статусом 200 или ошибки 400/500
      */
-    @Operation(summary = "Получить временные интервалы",
-            description = "Возвращает временные интервалы работы пользователя за указанный период")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Временные интервалы успешно получены",
+    @Operation(summary = "Get work intervals", description = "Returns work time intervals for specified period")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Time intervals retrieved successfully",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = TimeIntervalDTO.class, type = "array"))),
-            @ApiResponse(responseCode = "400", description = "Некорректные параметры даты"),
-            @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")})
+            @ApiResponse(responseCode = "400", description = "Invalid date parameters"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")})
     @GetMapping("/time-intervals")
     public ResponseEntity<List<TimeIntervalDTO>> getUserTimeIntervals(
-            @Parameter(description = "ID пользователя", required = true) @PathVariable Long userId,
-            @Parameter(description = "Начальная дата периода (формат ISO 8601)", example = "2023-01-01T00:00:00")
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
-            @Parameter(description = "Конечная дата периода (формат ISO 8601)", example = "2023-12-31T23:59:59")
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
+            @Parameter(description = "User ID", required = true) @PathVariable Long userId,
+            @Parameter(description = "Start date (ISO 8601 format)", example = "2023-01-01T00:00:00") @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @Parameter(description = "End date (ISO 8601 format)", example = "2023-12-31T23:59:59") @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
 
         logger.debug("Getting time intervals for user {} (from: {}, to: {})", userId, from, to);
 
@@ -222,19 +219,18 @@ public class TimeEntryController {
      * @param to     Конец периода (необязательный)
      * @return Общее время работы со статусом 200 или ошибки 400/500
      */
-    @Operation(summary = "Получить общую продолжительность работы",
-            description = "Возвращает общую продолжительность работы пользователя за указанный период")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Общая продолжительность успешно получена",
+    @Operation(summary = "Get total work duration", description = "Returns total work duration for specified period")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Total duration retrieved successfully",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = TotalWorkDurationDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Некорректные параметры даты"),
-            @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")})
+            @ApiResponse(responseCode = "400", description = "Invalid date parameters"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")})
     @GetMapping("/total-work-duration")
     public ResponseEntity<TotalWorkDurationDTO> getTotalWorkDuration(
-            @Parameter(description = "ID пользователя", required = true) @PathVariable Long userId,
-            @Parameter(description = "Начальная дата периода (формат ISO 8601)", example = "2023-01-01T00:00:00")
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
-            @Parameter(description = "Конечная дата периода (формат ISO 8601)", example = "2023-12-31T23:59:59")
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
+            @Parameter(description = "User ID", required = true) @PathVariable Long userId,
+            @Parameter(description = "Start date (ISO 8601 format)", example = "2023-01-01T00:00:00") @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @Parameter(description = "End date (ISO 8601 format)", example = "2023-12-31T23:59:59") @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
 
         logger.debug("Getting total work duration for user {} (from: {}, to: {})", userId, from, to);
 
@@ -254,11 +250,10 @@ public class TimeEntryController {
      * @param userId ID пользователя (обязательный)
      * @return Статус 204 при успехе или ошибки 404/500
      */
-    @Operation(summary = "Очистить данные трекинга",
-            description = "Удаляет все записи времени и связанные данные для указанного пользователя")
-    @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "Данные трекинга успешно очищены"),
-            @ApiResponse(responseCode = "404", description = "Пользователь не найден"),
-            @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")})
+    @Operation(summary = "Clear tracking data", description = "Deletes all time entries and related data for specified user")
+    @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "Tracking data cleared successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")})
     @DeleteMapping("/tracking-data")
     public ResponseEntity<Void> clearTrackingData(@Parameter(description = "ID пользователя", required = true) @PathVariable Long userId) {
         logger.warn("Clearing tracking data for user {}", userId);

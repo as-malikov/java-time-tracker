@@ -162,24 +162,6 @@ public class TimeEntryService {
         return result;
     }
 
-    private User getUser(Long userId) {
-        logger.debug("Getting user with id {}", userId);
-        return userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    logger.error("User not found with id {}", userId);
-                    return new ResourceNotFoundException("User not found");
-                });
-    }
-
-    private Task getTask(Long taskId) {
-        logger.debug("Getting task with id {}", taskId);
-        return taskRepository.findById(taskId)
-                .orElseThrow(() -> {
-                    logger.error("Task not found with id {}", taskId);
-                    return new ResourceNotFoundException("Task not found");
-                });
-    }
-
     /**
      * Получает суммарное время работы по задачам за период
      * @param userId ID пользователя (обязательный)
@@ -217,11 +199,11 @@ public class TimeEntryService {
             logger.debug("Found {} task duration records", results.size());
 
             return results.stream()
-                    .map(row -> {
+                    .map(taskDurationData -> {
                         try {
-                            Long taskId = ((Number) row[0]).longValue();
-                            String title = (String) row[1];
-                            long totalSeconds = ((Number) row[2]).longValue();
+                            Long taskId = ((Number) taskDurationData[0]).longValue();
+                            String title = (String) taskDurationData[1];
+                            long totalSeconds = ((Number) taskDurationData[2]).longValue();
 
                             LocalDateTime firstEntry = timeEntryRepository.findFirstByUserIdAndTaskIdOrderByStartTimeAsc(userId, taskId)
                                     .map(TimeEntry::getStartTime)
@@ -239,14 +221,6 @@ public class TimeEntryService {
             logger.error("Failed to get user task durations", e);
             throw new IllegalArgumentException("Failed to get user task durations", e);
         }
-    }
-
-
-    private String formatDurationUserTimeIntervals(Duration duration) {
-        long hours = duration.toHours();
-        long minutes = duration.minusHours(hours)
-                .toMinutes();
-        return String.format("%02d:%02d", hours, minutes);
     }
 
     /**
@@ -299,17 +273,6 @@ public class TimeEntryService {
         return result;
     }
 
-    private void addActiveInterval(List<TimeIntervalDTO> result, TimeEntry entry, LocalDateTime start, LocalDateTime end) {
-        Duration duration = Duration.between(start, end);
-        result.add(new TimeIntervalDTO(formatDurationUserTimeIntervals(duration), entry.getTask()
-                .getTitle(), true, start, end));
-    }
-
-    private void addInactiveInterval(List<TimeIntervalDTO> result, LocalDateTime start, LocalDateTime end) {
-        Duration duration = Duration.between(start, end);
-        result.add(new TimeIntervalDTO(formatDurationUserTimeIntervals(duration), "Неактивность", false, start, end));
-    }
-
     /**
      * Получает общее время работы за период
      * @param userId ID пользователя (обязательный)
@@ -340,17 +303,11 @@ public class TimeEntryService {
             logger.debug("Total work duration in seconds: {}", totalSeconds);
         }
 
-        long daysInPeriod = ChronoUnit.DAYS.between(from.toLocalDate(), to.toLocalDate()) + 1; // +1 чтобы включить оба крайних дня
+        long daysInPeriod = ChronoUnit.DAYS.between(from.toLocalDate(), to.toLocalDate()) + 1;
 
         logger.debug("Days in period: {}", daysInPeriod);
 
         return new TotalWorkDurationDTO(formatDuration(totalSeconds), totalSeconds, (int) daysInPeriod, from, to);
-    }
-
-    private String formatDuration(long totalSeconds) {
-        long hours = totalSeconds / 3600;
-        long minutes = (totalSeconds % 3600) / 60;
-        return String.format("%02d:%02d", hours, minutes);
     }
 
     /**
@@ -378,5 +335,47 @@ public class TimeEntryService {
                     .clear();
             taskRepository.save(task);
         });
+    }
+
+    private User getUser(Long userId) {
+        logger.debug("Getting user with id {}", userId);
+        return userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    logger.error("User not found with id {}", userId);
+                    return new ResourceNotFoundException("User not found");
+                });
+    }
+
+    private Task getTask(Long taskId) {
+        logger.debug("Getting task with id {}", taskId);
+        return taskRepository.findById(taskId)
+                .orElseThrow(() -> {
+                    logger.error("Task not found with id {}", taskId);
+                    return new ResourceNotFoundException("Task not found");
+                });
+    }
+
+    private void addActiveInterval(List<TimeIntervalDTO> result, TimeEntry entry, LocalDateTime start, LocalDateTime end) {
+        Duration duration = Duration.between(start, end);
+        result.add(new TimeIntervalDTO(formatDurationUserTimeIntervals(duration), entry.getTask()
+                .getTitle(), true, start, end));
+    }
+
+    private void addInactiveInterval(List<TimeIntervalDTO> result, LocalDateTime start, LocalDateTime end) {
+        Duration duration = Duration.between(start, end);
+        result.add(new TimeIntervalDTO(formatDurationUserTimeIntervals(duration), "Неактивность", false, start, end));
+    }
+
+    private String formatDurationUserTimeIntervals(Duration duration) {
+        long hours = duration.toHours();
+        long minutes = duration.minusHours(hours)
+                .toMinutes();
+        return String.format("%02d:%02d", hours, minutes);
+    }
+
+    private String formatDuration(long totalSeconds) {
+        long hours = totalSeconds / 3600;
+        long minutes = (totalSeconds % 3600) / 60;
+        return String.format("%02d:%02d", hours, minutes);
     }
 }

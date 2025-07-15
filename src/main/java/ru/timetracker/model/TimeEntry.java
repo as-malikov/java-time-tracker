@@ -47,7 +47,6 @@ public class TimeEntry {
      * @return Время начала
      */
     @NotNull(message = "Start time is required")
-    @PastOrPresent(message = "Start time cannot be in the future")
     @Column(nullable = false)
     private LocalDateTime startTime;
 
@@ -55,7 +54,6 @@ public class TimeEntry {
      * Время окончания работы (null для активных записей)
      * @return Время окончания или null
      */
-    @FutureOrPresent(message = "End time cannot be in the past")
     @Column
     private LocalDateTime endTime;
 
