@@ -407,11 +407,11 @@ curl --location 'http://localhost:8080/api/v1/users/1/time-entries/start' \
 ```
 
 **6.3.2 Остановить запись времени:**  
-**POST**  ```/api/v1/users/{userId}/time-entries/{timeEntryId}/stop```
+**POST**  ```/api/v1/users/{userId}/time-entries/stop```
 
 **Пример запроса:**
 ```bash
-curl --location 'http://localhost:8080/api/v1/users/1/time-entries/1/stop' \
+curl --location 'http://localhost:8080/api/v1/users/1/time-entries/stop' \
 --header 'Content-Type: application/json' \
 --data '{
     "taskId": 1
@@ -588,27 +588,27 @@ curl --location --request DELETE 'http://localhost:8080/api/v1/users/1/time-entr
 
 ## 8.Полная таблица endpoint'ов
 
-| Метод  | 	Endpoint                                                | 	Описание                              |
-|--------|----------------------------------------------------------|----------------------------------------|
-| GET    | 	/api/v1/users                                           | 	Получить всех пользователей           |
-| POST   | 	/api/v1/users                                           | 	Создать пользователя                  |
-| GET    | 	/api/v1/users/{id}                                      | 	Получить пользователя по ID           |
-| PUT    | 	/api/v1/users/{id}                                      | 	Обновить пользователя                 |
-| DELETE | 	/api/v1/users/{userId}                                  | 	Удалить пользователя                  |
-| GET    | 	/api/v1/users/{userId}/tasks                            | 	Получить задачи пользователя          |
-| POST   | 	/api/v1/users/{userId}/tasks                            | 	Создать задачу                        |
-| GET    | 	/api/v1/users/{userId}/tasks/{taskId}                   | 	Получить задачу по ID                 |
-| PUT    | 	/api/v1/users/{userId}/tasks/{taskId}                   | 	Обновить задачу                       |
-| PATCH  | 	/api/v1/users/{userId}/tasks/{taskId}/toggle-status     | 	Переключить статус задачи             |
-| DELETE | 	/api/v1/users/{userId}/tasks/{taskId}                   | 	Удалить задачу                        |
-| DELETE | 	/api/v1/users/{userId}/tasks                            | 	Удалить все задачи пользователя       |
-| POST   | 	/api/v1/users/{userId}/time-entries/start               | 	Начать учет времени                   |
-| POST   | 	/api/v1/users/{userId}/time-entries/{timeEntryId}/stop  | 	Остановить учет времени               |
-| GET    | 	/api/v1/users/{userId}/time-entries                     | 	Получить записи времени               |
-| GET    | 	/api/v1/users/{userId}/time-entries/task-durations      | 	Получить продолжительность по задачам |
-| GET    | 	/api/v1/users/{userId}/time-entries/time-intervals      | 	Получить временные интервалы          |
+| Метод  | 	Endpoint                                  | 	Описание                              |
+|--------|--------------------------------------------|----------------------------------------|
+| GET    | 	/api/v1/users                             | 	Получить всех пользователей           |
+| POST   | 	/api/v1/users                             | 	Создать пользователя                  |
+| GET    | 	/api/v1/users/{id}                        | 	Получить пользователя по ID           |
+| PUT    | 	/api/v1/users/{id}                        | 	Обновить пользователя                 |
+| DELETE | 	/api/v1/users/{userId}                    | 	Удалить пользователя                  |
+| GET    | 	/api/v1/users/{userId}/tasks              | 	Получить задачи пользователя          |
+| POST   | 	/api/v1/users/{userId}/tasks              | 	Создать задачу                        |
+| GET    | 	/api/v1/users/{userId}/tasks/{taskId}     | 	Получить задачу по ID                 |
+| PUT    | 	/api/v1/users/{userId}/tasks/{taskId}     | 	Обновить задачу                       |
+| PATCH  | 	/api/v1/users/{userId}/tasks/{taskId}/toggle-status | 	Переключить статус задачи             |
+| DELETE | 	/api/v1/users/{userId}/tasks/{taskId}     | 	Удалить задачу                        |
+| DELETE | 	/api/v1/users/{userId}/tasks              | 	Удалить все задачи пользователя       |
+| POST   | 	/api/v1/users/{userId}/time-entries/start | 	Начать учет времени                   |
+| POST   | 	/api/v1/users/{userId}/time-entries/stop  | 	Остановить учет времени               |
+| GET    | 	/api/v1/users/{userId}/time-entries       | 	Получить записи времени               |
+| GET    | 	/api/v1/users/{userId}/time-entries/task-durations | 	Получить продолжительность по задачам |
+| GET    | 	/api/v1/users/{userId}/time-entries/time-intervals | 	Получить временные интервалы          |
 | GET    | 	/api/v1/users/{userId}/time-entries/total-work-duration | 	Получить суммарное время работы       |
-| DELETE | 	/api/v1/users/{userId}/time-entries/tracking-data       | 	Очистить данные учета времени         |
+| DELETE | 	/api/v1/users/{userId}/time-entries/tracking-data | 	Очистить данные учета времени         |
 
 
 
