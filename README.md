@@ -59,6 +59,8 @@ cd java-time-tracker
 ### 3.2 Настройка базы данных  
 ```src/main/resources/application.properties:```
 
+**По умолчанию очистка данных производится каждый день в 1:00 для данных больше 30 дней.**
+
 #### Для PostgreSQL
 ```properties
 # Основные настройки
@@ -70,6 +72,11 @@ spring.jpa.hibernate.ddl-auto=update
 # Дополнительные настройки
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
+
+# Настройка срока хранения данных (30 дней)
+timetracker.data.retention.days=30
+# Настройка расписания очистки (каждый день в 1:00)
+app.cleanup.cron=0 0 1 * * ?
 ```
 
 #### Для H2 (встроенная БД)

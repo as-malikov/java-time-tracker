@@ -42,6 +42,7 @@ public class DataCleanupScheduler {
 
     /**
      * Ежедневно удаляет данные старше указанного срока.
+     * Вычисляет граничную дату ({@code cutoffDate}) как текущая дата минус {@code retentionDays}
      */
     @Scheduled(cron = "${app.cleanup.cron:0 0 1 * * ?}")
     public void cleanupOldData() {
