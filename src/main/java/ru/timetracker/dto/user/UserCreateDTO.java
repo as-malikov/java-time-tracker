@@ -24,13 +24,18 @@ public class UserCreateDTO {
      * Имя пользователя
      * @return Имя пользователя
      */
-    @NotBlank @Size(min = 2, max = 50) private String name;
+    @NotBlank
+    @Size(min = 2, max = 50)
+    private String name;
 
     /**
      * Email пользователя (уникальный идентификатор)
      * @return Email пользователя
      */
-    @NotBlank @Email @Size(max = 100) private String email;
+    @NotBlank
+    @Email
+    @Size(max = 100)
+    private String email;
 
     /**
      * Конструктор по умолчанию, необходимый для Javadoc.

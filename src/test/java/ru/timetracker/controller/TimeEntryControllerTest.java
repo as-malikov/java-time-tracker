@@ -34,9 +34,11 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class TimeEntryControllerTest {
 
-    @Mock private TimeEntryService timeEntryService;
+    @Mock
+    private TimeEntryService timeEntryService;
 
-    @InjectMocks private TimeEntryController timeEntryController;
+    @InjectMocks
+    private TimeEntryController timeEntryController;
 
     /**
      * Проверяет успешное начало новой временной записи. Ожидаемое поведение:

@@ -42,10 +42,14 @@ class TaskServiceTest {
 
     private final Long userId = 1L;
     private final Long taskId = 1L;
-    @Mock private TaskRepository taskRepository;
-    @Mock private UserRepository userRepository;
-    @Mock private TaskMapper taskMapper;
-    @InjectMocks private TaskService taskService;
+    @Mock
+    private TaskRepository taskRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private TaskMapper taskMapper;
+    @InjectMocks
+    private TaskService taskService;
 
     /**
      * Проверяет получение отфильтрованного списка задач пользователя.

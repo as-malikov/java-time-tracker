@@ -5,7 +5,6 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * DTO для создания новой задачи. Содержит минимально необходимые данные для создания задачи.
@@ -23,13 +22,16 @@ public class TaskCreateDTO {
      * Название задачи (обязательное поле)
      * @return Название задачи
      */
-    @NotBlank @Size(min = 3, max = 100) private String title;
+    @NotBlank
+    @Size(min = 3, max = 100)
+    private String title;
 
     /**
      * Описание задачи (необязательное поле)
      * @return Описание задачи
      */
-    @Size(max = 1000) private String description;
+    @Size(max = 1000)
+    private String description;
 
     /**
      * Конструктор по умолчанию, необходимый для Javadoc.

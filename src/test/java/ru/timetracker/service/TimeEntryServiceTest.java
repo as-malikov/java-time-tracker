@@ -48,11 +48,16 @@ class TimeEntryServiceTest {
     private final LocalDateTime now = LocalDateTime.now();
     private final LocalDateTime startTime = now.minusHours(1);
     private final LocalDateTime endTime = now;
-    @Mock private TimeEntryRepository timeEntryRepository;
-    @Mock private UserRepository userRepository;
-    @Mock private TaskRepository taskRepository;
-    @Mock private TimeEntryMapper timeEntryMapper;
-    @InjectMocks private TimeEntryService timeEntryService;
+    @Mock
+    private TimeEntryRepository timeEntryRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private TaskRepository taskRepository;
+    @Mock
+    private TimeEntryMapper timeEntryMapper;
+    @InjectMocks
+    private TimeEntryService timeEntryService;
 
     /**
      * Проверяет создание новой временной записи.
@@ -206,8 +211,7 @@ class TimeEntryServiceTest {
         TimeEntryDTO entryDTO = new TimeEntryDTO();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(timeEntryRepository.findByUserAndStartTimeBetweenOrderByStartTime(user, startTime, endTime)).thenReturn(
-                List.of(entry));
+        when(timeEntryRepository.findByUserAndStartTimeBetweenOrderByStartTime(user, startTime, endTime)).thenReturn(List.of(entry));
         when(timeEntryMapper.toDTO(entry)).thenReturn(entryDTO);
 
         List<TimeEntryDTO> result = timeEntryService.getUserTimeEntries(userId, startTime, endTime);
@@ -232,8 +236,8 @@ class TimeEntryServiceTest {
 
         timeEntryService.getUserTimeEntries(userId, null, null);
 
-        verify(timeEntryRepository).findByUserAndStartTimeBetweenOrderByStartTime(any(User.class),
-                any(LocalDateTime.class), any(LocalDateTime.class));
+        verify(timeEntryRepository).findByUserAndStartTimeBetweenOrderByStartTime(any(User.class), any(LocalDateTime.class),
+                any(LocalDateTime.class));
     }
 
     /**
@@ -251,10 +255,8 @@ class TimeEntryServiceTest {
         Object[] dbRow = new Object[]{taskId, "Task 1", 3600L}; // 1 hour
         TaskDurationDTO durationDTO = new TaskDurationDTO(taskId, "Task 1", "01:00", startTime);
 
-        when(timeEntryRepository.findTaskDurationsByUserAndPeriod(userId, startTime, endTime)).thenReturn(
-                List.<Object[]>of(dbRow));
-        when(timeEntryRepository.findFirstByUserIdAndTaskIdOrderByStartTimeAsc(userId, taskId)).thenReturn(
-                Optional.of(new TimeEntry()));
+        when(timeEntryRepository.findTaskDurationsByUserAndPeriod(userId, startTime, endTime)).thenReturn(List.<Object[]>of(dbRow));
+        when(timeEntryRepository.findFirstByUserIdAndTaskIdOrderByStartTimeAsc(userId, taskId)).thenReturn(Optional.of(new TimeEntry()));
 
         List<TaskDurationDTO> result = timeEntryService.getUserTaskDurations(userId, startTime, endTime);
 
@@ -283,8 +285,7 @@ class TimeEntryServiceTest {
         entry.setTask(task);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(timeEntryRepository.findByUserAndStartTimeBetweenOrderByStartTime(user, startTime, endTime)).thenReturn(
-                List.of(entry));
+        when(timeEntryRepository.findByUserAndStartTimeBetweenOrderByStartTime(user, startTime, endTime)).thenReturn(List.of(entry));
 
         List<TimeIntervalDTO> result = timeEntryService.getUserTimeIntervals(userId, startTime, endTime);
 
@@ -306,8 +307,7 @@ class TimeEntryServiceTest {
      */
     @Test
     void getTotalWorkDuration_ShouldCalculateTotal() {
-        when(timeEntryRepository.sumWorkDurationByUserAndPeriod(userId, startTime, endTime)).thenReturn(
-                7200L); // 2 hours
+        when(timeEntryRepository.sumWorkDurationByUserAndPeriod(userId, startTime, endTime)).thenReturn(7200L); // 2 hours
 
         TotalWorkDurationDTO result = timeEntryService.getTotalWorkDuration(userId, startTime, endTime);
 
@@ -349,12 +349,10 @@ class TimeEntryServiceTest {
         User user = new User();
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         timeEntryService.getUserTimeEntries(userId, startTime, null);
-        verify(timeEntryRepository).findByUserAndStartTimeBetweenOrderByStartTime(eq(user), eq(startTime),
-                any(LocalDateTime.class));
+        verify(timeEntryRepository).findByUserAndStartTimeBetweenOrderByStartTime(eq(user), eq(startTime), any(LocalDateTime.class));
 
         timeEntryService.getUserTimeEntries(userId, null, endTime);
-        verify(timeEntryRepository).findByUserAndStartTimeBetweenOrderByStartTime(eq(user), any(LocalDateTime.class),
-                eq(endTime));
+        verify(timeEntryRepository).findByUserAndStartTimeBetweenOrderByStartTime(eq(user), any(LocalDateTime.class), eq(endTime));
     }
 
     /**

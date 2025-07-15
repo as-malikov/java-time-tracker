@@ -5,7 +5,6 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -30,13 +29,16 @@ public class TaskUpdateDTO {
      * Новое название задачи
      * @return Название задачи
      */
-    @NotBlank @Size(min = 3, max = 100) private String title;
+    @NotBlank
+    @Size(min = 3, max = 100)
+    private String title;
 
     /**
      * Новое описание задачи
      * @return Описание задачи
      */
-    @Size(max = 1000) private String description;
+    @Size(max = 1000)
+    private String description;
 
     /**
      * Новый статус активности

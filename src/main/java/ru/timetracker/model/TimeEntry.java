@@ -1,6 +1,9 @@
 package ru.timetracker.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -35,39 +38,55 @@ public class TimeEntry {
      * Уникальный идентификатор записи времени
      * @return ID записи
      */
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     /**
      * Время начала работы (обязательное поле)
      * @return Время начала
      */
-    @Column(nullable = false) private LocalDateTime startTime;
+    @NotNull(message = "Start time is required")
+    @PastOrPresent(message = "Start time cannot be in the future")
+    @Column(nullable = false)
+    private LocalDateTime startTime;
 
     /**
      * Время окончания работы (null для активных записей)
      * @return Время окончания или null
      */
-    @Column private LocalDateTime endTime;
+    @FutureOrPresent(message = "End time cannot be in the past")
+    @Column
+    private LocalDateTime endTime;
 
     /**
      * Пользователь, связанный с записью
      * @return Объект пользователя
      */
-    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "user_id", nullable = false) @ToString.Exclude @EqualsAndHashCode.Exclude
+    @NotNull(message = "User is required")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private User user;
 
     /**
      * Задача, связанная с записью
      * @return Объект задачи
      */
-    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "task_id", nullable = false) @ToString.Exclude @EqualsAndHashCode.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "task_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Task task;
 
     /**
      * Дата и время создания записи (устанавливается автоматически)
      * @return Дата создания
      */
-    @CreationTimestamp @Column(updatable = false) private LocalDateTime createdAt;
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
 
     /**
      * Конструктор по умолчанию, необходимый для Javadoc.

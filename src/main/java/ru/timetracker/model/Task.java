@@ -1,12 +1,13 @@
 package ru.timetracker.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import ru.timetracker.model.User;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,44 +39,62 @@ public class Task {
      * Уникальный идентификатор задачи
      * @return ID задачи
      */
-    @Id @GeneratedValue private Long id;
+    @Id
+    @GeneratedValue
+    private Long id;
 
     /**
      * Название задачи (обязательное поле)
      * @return Название задачи
      */
-    @Column(nullable = false) private String title;
+    @NotBlank(message = "Task title is required")
+    @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters")
+    @Column(nullable = false)
+    private String title;
 
     /**
      * Описание задачи (необязательное поле)
      * @return Описание задачи
      */
-    @Column private String description;
+    @Size(max = 500, message = "Description cannot exceed 500 characters")
+    @Column
+    private String description;
 
     /**
      * Дата и время создания задачи (устанавливается автоматически)
      * @return Дата создания
      */
-    @Column(nullable = false, updatable = false) private LocalDateTime createdAt;
+    @PastOrPresent(message = "Creation date cannot be in the future")
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     /**
      * Статус активности задачи (true - активная, false - неактивная)
      * @return Статус активности
      */
-    @Builder.Default @Column(nullable = false) private boolean active = true;
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean active = true;
 
     /**
      * Пользователь-владелец задачи
      * @return Объект пользователя
      */
-    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "user_id", nullable = false) @ToString.Exclude @EqualsAndHashCode.Exclude
+    @NotNull(message = "Task must be assigned to a user")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private User user;
 
     /**
      * Список записей времени, связанных с задачей
      * @return Список записей времени
      */
-    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true) @ToString.Exclude @EqualsAndHashCode.Exclude
+    @Builder.Default
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<TimeEntry> timeEntries;
 
     /**

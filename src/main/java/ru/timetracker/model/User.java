@@ -29,8 +29,6 @@ import java.util.List;
  */
 @Builder
 @Data
-@Getter
-@Setter
 @AllArgsConstructor
 @ToString
 @Entity
@@ -41,39 +39,57 @@ public class User {
      * Уникальный идентификатор пользователя
      * @return ID пользователя
      */
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     /**
      * Имя пользователя
      * @return Имя пользователя
      */
-    @Column(nullable = false) private String name;
+    @NotBlank(message = "Username is required")
+    @Size(min = 2, max = 50, message = "Name must be between 2 and 50 characters")
+    @Pattern(regexp = "^[a-zA-Zа-яА-Я\\s\\-]+$", message = "Name can only contain letters, spaces and hyphens")
+    @Column(nullable = false)
+    private String name;
 
     /**
      * Уникальный email пользователя (используется для входа)
      * @return Email пользователя
      */
-    @Column(nullable = false, unique = true) private String email;
+    @NotBlank(message = "Email is required")
+    @Email(message = "Invalid email format")
+    @Column(nullable = false, unique = true)
+    private String email;
 
     /**
      * Дата и время создания пользователя (устанавливается автоматически)
      * @return Дата создания
      */
-    @Builder.Default @Column(nullable = false, updatable = false) private LocalDateTime createdAt = LocalDateTime.now();
+    @PastOrPresent(message = "Creation date cannot be in the future")
+    @Builder.Default
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     /**
      * Список задач пользователя
      * @return Список задач
      */
-    @ToString.Exclude @EqualsAndHashCode.Exclude @Builder.Default
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true) private List<Task> tasks = new ArrayList<>();
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @Builder.Default
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Task> tasks = new ArrayList<>();
 
     /**
      * Список записей времени пользователя
      * @return Список записей времени
      */
-    @ToString.Exclude @EqualsAndHashCode.Exclude @Builder.Default
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true) private List<TimeEntry> timeEntries = new ArrayList<>();
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @Builder.Default
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TimeEntry> timeEntries = new ArrayList<>();
 
     /**
      * Конструктор по умолчанию, необходимый для Javadoc.
