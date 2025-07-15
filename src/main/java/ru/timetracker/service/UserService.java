@@ -142,7 +142,7 @@ public class UserService {
      * @throws ResourceNotFoundException если пользователь не найден
      */
     @Transactional(readOnly = true)
-    private User getUserEntity(Long id) {
+    protected User getUserEntity(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> {
                     String errorMessage = "User with ID " + id + " not found";
