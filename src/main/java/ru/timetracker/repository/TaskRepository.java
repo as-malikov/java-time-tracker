@@ -3,10 +3,12 @@ package ru.timetracker.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 import ru.timetracker.model.Task;
 import ru.timetracker.model.User;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,4 +55,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Transactional
     @Modifying
     void deleteByUser(User user);
+
+    @Modifying
+    @Query("DELETE FROM Task t WHERE t.createdAt < :cutoffDate AND SIZE(t.timeEntries) = 0")
+    int deleteInactiveTasksOlderThan(@Param("cutoffDate") LocalDateTime cutoffDate);
 }

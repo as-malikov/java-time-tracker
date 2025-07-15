@@ -79,4 +79,8 @@ public interface TimeEntryRepository extends JpaRepository<TimeEntry, Long> {
      * @return Список активных записей времени
      */
     List<TimeEntry> findByEndTimeIsNull();
+
+    @Modifying
+    @Query("DELETE FROM TimeEntry te WHERE te.startTime < :cutoffDate")
+    int deleteByStartTimeBefore(@Param("cutoffDate") LocalDateTime cutoffDate);
 }
