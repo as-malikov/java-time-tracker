@@ -1,4 +1,4 @@
-package ru.timetracker.dto;
+package ru.timetracker.dto.timeentry;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

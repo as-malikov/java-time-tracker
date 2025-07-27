@@ -9,7 +9,11 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.timetracker.dto.*;
+import ru.timetracker.dto.task.TaskDurationDTO;
+import ru.timetracker.dto.timeentry.TimeEntryCreateDTO;
+import ru.timetracker.dto.timeentry.TimeEntryDTO;
+import ru.timetracker.dto.timeentry.TimeIntervalDTO;
+import ru.timetracker.dto.timeentry.TotalWorkDurationDTO;
 import ru.timetracker.service.TimeEntryService;
 
 import java.time.LocalDateTime;

@@ -1,9 +1,9 @@
-package ru.timetracker.dto.Mapper;
+package ru.timetracker.dto.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import ru.timetracker.dto.TimeEntryDTO;
+import ru.timetracker.dto.timeentry.TimeEntryDTO;
 import ru.timetracker.model.TimeEntry;
 
 import java.time.Duration;

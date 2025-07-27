@@ -1,4 +1,4 @@
-package ru.timetracker.dto;
+package ru.timetracker.dto.timeentry;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

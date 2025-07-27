@@ -1,11 +1,11 @@
-package ru.timetracker.dto.Mapper;
+package ru.timetracker.dto.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import ru.timetracker.dto.TaskCreateDTO;
-import ru.timetracker.dto.TaskDTO;
-import ru.timetracker.dto.TaskUpdateDTO;
+import ru.timetracker.dto.task.TaskCreateDTO;
+import ru.timetracker.dto.task.TaskDTO;
+import ru.timetracker.dto.task.TaskUpdateDTO;
 import ru.timetracker.model.Task;
 import ru.timetracker.repository.UserRepository;
 

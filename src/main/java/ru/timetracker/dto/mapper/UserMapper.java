@@ -1,9 +1,9 @@
-package ru.timetracker.dto.Mapper;
+package ru.timetracker.dto.mapper;
 
 import org.mapstruct.*;
-import ru.timetracker.dto.UserCreateDTO;
-import ru.timetracker.dto.UserDTO;
-import ru.timetracker.dto.UserUpdateDTO;
+import ru.timetracker.dto.user.UserCreateDTO;
+import ru.timetracker.dto.user.UserDTO;
+import ru.timetracker.dto.user.UserUpdateDTO;
 import ru.timetracker.model.User;
 
 @Mapper(componentModel = "spring")

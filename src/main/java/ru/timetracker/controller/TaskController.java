@@ -7,9 +7,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.timetracker.dto.TaskCreateDTO;
-import ru.timetracker.dto.TaskDTO;
-import ru.timetracker.dto.TaskUpdateDTO;
+import ru.timetracker.dto.task.TaskCreateDTO;
+import ru.timetracker.dto.task.TaskDTO;
+import ru.timetracker.dto.task.TaskUpdateDTO;
 import ru.timetracker.service.TaskService;
 
 import java.util.List;
