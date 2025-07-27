@@ -29,40 +29,40 @@ public class TaskService {
 
     @Transactional(readOnly = true)
     public List<TaskDTO> getUserTasks(Long userId, boolean includeInactive) {
-        logger.debug("Получение задач для пользователя ID: {}, includeInactive: {}", userId, includeInactive);
+        logger.debug("Fetching tasks for user ID: {}, includeInactive: {}", userId, includeInactive);
         List<TaskDTO> tasks = taskRepository.findByUserId(userId, includeInactive).stream()
                 .map(taskMapper::toDTO)
                 .toList();
-        logger.info("Найдено {} задач для пользователя ID: {}", tasks.size(), userId);
+        logger.info("Found {} tasks for user ID: {}", tasks.size(), userId);
         return tasks;
     }
 
     @Transactional(readOnly = true)
     public TaskDTO getTaskById(Long userId, Long taskId) {
-        logger.debug("Поиск задачи ID: {} для пользователя ID: {}", taskId, userId);
+        logger.debug("Looking for task ID: {} for user ID: {}", taskId, userId);
         Task task = taskRepository.findByIdAndUserId(taskId, userId)
                 .orElseThrow(() -> {
-                    String errorMsg = "Задача не найдена. ID задачи: " + taskId + ", ID пользователя: " + userId;
+                    String errorMsg = "Task not found. Task ID: " + taskId + ", User ID: " + userId;
                     logger.error(errorMsg);
                     return new ResourceNotFoundException(errorMsg);
                 });
-        logger.info("Найдена задача ID: {} для пользователя ID: {}", taskId, userId);
+        logger.info("Found task ID: {} for user ID: {}", taskId, userId);
         return taskMapper.toDTO(task);
     }
 
     @Transactional
     public TaskDTO createTask(Long userId, TaskCreateDTO taskCreateDTO) {
-        logger.debug("Создание новой задачи для пользователя ID: {}. Данные: {}", userId, taskCreateDTO);
+        logger.debug("Creating new task for user ID: {}. Data: {}", userId, taskCreateDTO);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> {
-                    String errorMsg = "Пользователь не найден. ID: " + userId;
+                    String errorMsg = "User not found. ID: " + userId;
                     logger.error(errorMsg);
                     return new ResourceNotFoundException(errorMsg);
                 });
 
         if (taskRepository.existsByUserIdAndTitle(userId, taskCreateDTO.getTitle())) {
-            String errorMsg = "Задача с таким названием уже существует: " + taskCreateDTO.getTitle();
+            String errorMsg = "Task with this title already exists: " + taskCreateDTO.getTitle();
             logger.error(errorMsg);
             throw new TaskAlreadyExistsException(taskCreateDTO.getTitle());
         }
@@ -71,18 +71,18 @@ public class TaskService {
         task.setUser(user);
         task = taskRepository.save(task);
 
-        logger.info("Создана новая задача ID: {} для пользователя ID: {}. Название: {}",
+        logger.info("Created new task ID: {} for user ID: {}. Title: {}",
                 task.getId(), userId, task.getTitle());
         return taskMapper.toDTO(task);
     }
 
     @Transactional
     public TaskDTO updateTask(Long taskId, Long userId, TaskUpdateDTO taskUpdateDTO) {
-        logger.debug("Обновление задачи ID: {} для пользователя ID: {}. Данные: {}", taskId, userId, taskUpdateDTO);
+        logger.debug("Updating task ID: {} for user ID: {}. Data: {}", taskId, userId, taskUpdateDTO);
 
         Task task = taskRepository.findByIdAndUserId(taskId, userId)
                 .orElseThrow(() -> {
-                    String errorMsg = "Задача не найдена. ID задачи: " + taskId + ", ID пользователя: " + userId;
+                    String errorMsg = "Task not found. Task ID: " + taskId + ", User ID: " + userId;
                     logger.error(errorMsg);
                     return new ResourceNotFoundException(errorMsg);
                 });
@@ -91,21 +91,21 @@ public class TaskService {
 
         if (taskUpdateDTO.getCreatedAt() != null) {
             task.setCreatedAt(taskUpdateDTO.getCreatedAt());
-            logger.debug("Обновлено поле createdAt для задачи ID: {}", taskId);
+            logger.debug("Updated createdAt field for task ID: {}", taskId);
         }
 
         task = taskRepository.save(task);
-        logger.info("Обновлена задача ID: {} для пользователя ID: {}", taskId, userId);
+        logger.info("Updated task ID: {} for user ID: {}", taskId, userId);
         return taskMapper.toDTO(task);
     }
 
     @Transactional
     public TaskDTO toggleTaskStatus(Long taskId, Long userId) {
-        logger.debug("Изменение статуса задачи ID: {} для пользователя ID: {}", taskId, userId);
+        logger.debug("Toggling status for task ID: {} for user ID: {}", taskId, userId);
 
         Task task = taskRepository.findByIdAndUserId(taskId, userId)
                 .orElseThrow(() -> {
-                    String errorMsg = "Задача не найдена. ID задачи: " + taskId + ", ID пользователя: " + userId;
+                    String errorMsg = "Task not found. Task ID: " + taskId + ", User ID: " + userId;
                     logger.error(errorMsg);
                     return new ResourceNotFoundException(errorMsg);
                 });
@@ -114,23 +114,23 @@ public class TaskService {
         task.setActive(newStatus);
         task = taskRepository.save(task);
 
-        logger.info("Изменен статус задачи ID: {} для пользователя ID: {}. Новый статус: {}",
-                taskId, userId, newStatus ? "активна" : "неактивна");
+        logger.info("Status changed for task ID: {} for user ID: {}. New status: {}",
+                taskId, userId, newStatus ? "active" : "inactive");
         return taskMapper.toDTO(task);
     }
 
     @Transactional
     public void deleteTask(Long taskId, Long userId) {
-        logger.debug("Удаление задачи ID: {} для пользователя ID: {}", taskId, userId);
+        logger.debug("Deleting task ID: {} for user ID: {}", taskId, userId);
 
         Task task = taskRepository.findByIdAndUserId(taskId, userId)
                 .orElseThrow(() -> {
-                    String errorMsg = "Задача не найдена. ID задачи: " + taskId + ", ID пользователя: " + userId;
+                    String errorMsg = "Task not found. Task ID: " + taskId + ", User ID: " + userId;
                     logger.error(errorMsg);
                     return new ResourceNotFoundException(errorMsg);
                 });
 
         taskRepository.delete(task);
-        logger.info("Удалена задача ID: {} для пользователя ID: {}", taskId, userId);
+        logger.info("Deleted task ID: {} for user ID: {}", taskId, userId);
     }
 }

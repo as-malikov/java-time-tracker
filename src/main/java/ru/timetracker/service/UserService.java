@@ -30,28 +30,28 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<UserDTO> getAllUsers() {
-        logger.debug("Запрос на получение всех пользователей");
+        logger.debug("Request to fetch all users");
         List<UserDTO> users = userRepository.findAll().stream()
                 .map(userMapper::toDTO)
                 .toList();
-        logger.info("Получено {} пользователей", users.size());
+        logger.info("Retrieved {} users", users.size());
         return users;
     }
 
     @Transactional(readOnly = true)
     public UserDTO getUserById(Long id) {
-        logger.debug("Запрос на получение пользователя с ID: {}", id);
+        logger.debug("Request to fetch user with ID: {}", id);
         UserDTO userDTO = userMapper.toDTO(getUserEntity(id));
-        logger.info("Пользователь с ID: {} успешно получен", id);
+        logger.info("Successfully retrieved user with ID: {}", id);
         return userDTO;
     }
 
     @Transactional
     public UserDTO createUser(UserCreateDTO userCreateDTO) {
-        logger.debug("Попытка создания нового пользователя с email: {}", userCreateDTO.getEmail());
+        logger.debug("Attempting to create new user with email: {}", userCreateDTO.getEmail());
 
         if (userRepository.existsByEmail(userCreateDTO.getEmail())) {
-            String errorMessage = "Пользователь с email " + userCreateDTO.getEmail() + " уже существует";
+            String errorMessage = "User with email " + userCreateDTO.getEmail() + " already exists";
             logger.error(errorMessage);
             throw new EmailAlreadyExistsException(userCreateDTO.getEmail());
         }
@@ -59,18 +59,18 @@ public class UserService {
         User user = userMapper.toEntity(userCreateDTO);
         user = userRepository.save(user);
 
-        logger.info("Создан новый пользователь: ID={}, Email={}", user.getId(), user.getEmail());
+        logger.info("Created new user: ID={}, Email={}", user.getId(), user.getEmail());
         return userMapper.toDTO(user);
     }
 
     @Transactional
     public UserDTO updateUser(Long id, UserUpdateDTO userUpdateDTO) {
-        logger.debug("Попытка обновления пользователя с ID: {}", id);
+        logger.debug("Attempting to update user with ID: {}", id);
         User user = getUserEntity(id);
 
         if (!user.getEmail().equals(userUpdateDTO.getEmail()) &&
                 userRepository.existsByEmail(userUpdateDTO.getEmail())) {
-            String errorMessage = "Email " + userUpdateDTO.getEmail() + " уже используется другим пользователем";
+            String errorMessage = "Email " + userUpdateDTO.getEmail() + " is already in use by another user";
             logger.error(errorMessage);
             throw new EmailAlreadyExistsException(userUpdateDTO.getEmail());
         }
@@ -78,7 +78,7 @@ public class UserService {
         userMapper.updateEntity(userUpdateDTO, user);
         user = userRepository.save(user);
 
-        logger.info("Пользователь с ID: {} успешно обновлен. Новый email: {}", id, user.getEmail());
+        logger.info("Successfully updated user with ID: {}. New email: {}", id, user.getEmail());
         return userMapper.toDTO(user);
     }
 
@@ -86,7 +86,7 @@ public class UserService {
     private User getUserEntity(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> {
-                    String errorMessage = "Пользователь с ID " + id + " не найден";
+                    String errorMessage = "User with ID " + id + " not found";
                     logger.error(errorMessage);
                     return new ResourceNotFoundException(errorMessage);
                 });
@@ -94,10 +94,10 @@ public class UserService {
 
     @Transactional
     public void deleteUserCompletely(Long userId) {
-        logger.debug("Попытка полного удаления пользователя с ID: {}", userId);
+        logger.debug("Attempting complete deletion of user with ID: {}", userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> {
-                    String errorMessage = "Пользователь с ID " + userId + " не найден";
+                    String errorMessage = "User with ID " + userId + " not found";
                     logger.error(errorMessage);
                     return new ResourceNotFoundException(errorMessage);
                 });
@@ -106,7 +106,6 @@ public class UserService {
         taskRepository.deleteByUser(user);
         userRepository.delete(user);
 
-        logger.info("Пользователь с ID: {} полностью удален.",
-                userId);
+        logger.info("User with ID: {} has been completely deleted", userId);
     }
 }

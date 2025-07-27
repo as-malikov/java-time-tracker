@@ -26,14 +26,14 @@ public class TaskController {
             @PathVariable Long userId,
             @RequestParam(defaultValue = "false") boolean includeInactive) {
 
-        logger.info("Получение задач для пользователя {} (includeInactive: {})", userId, includeInactive);
+        logger.info("Fetching tasks for user {} (includeInactive: {})", userId, includeInactive);
 
         try {
             List<TaskDTO> tasks = taskService.getUserTasks(userId, includeInactive);
-            logger.debug("Успешно получено {} задач для пользователя {}", tasks.size(), userId);
+            logger.debug("Successfully retrieved {} tasks for user {}", tasks.size(), userId);
             return ResponseEntity.ok(tasks);
         } catch (Exception e) {
-            logger.error("Ошибка при получении задач для пользователя {}: {}", userId, e.getMessage(), e);
+            logger.error("Error fetching tasks for user {}: {}", userId, e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -43,14 +43,14 @@ public class TaskController {
             @PathVariable Long userId,
             @PathVariable Long taskId) {
 
-        logger.info("Получение задачи {} для пользователя {}", taskId, userId);
+        logger.info("Fetching task {} for user {}", taskId, userId);
 
         try {
             TaskDTO task = taskService.getTaskById(userId, taskId);
-            logger.debug("Успешно получена задача {}: {}", taskId, task);
+            logger.debug("Successfully retrieved task {}: {}", taskId, task);
             return ResponseEntity.ok(task);
         } catch (Exception e) {
-            logger.error("Ошибка при получении задачи {} для пользователя {}: {}", taskId, userId, e.getMessage(), e);
+            logger.error("Error fetching task {} for user {}: {}", taskId, userId, e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -60,14 +60,14 @@ public class TaskController {
             @PathVariable Long userId,
             @RequestBody @Valid TaskCreateDTO taskCreateDTO) {
 
-        logger.info("Создание задачи для пользователя {}. Данные: {}", userId, taskCreateDTO);
+        logger.info("Creating task for user {}. Data: {}", userId, taskCreateDTO);
 
         try {
             TaskDTO createdTask = taskService.createTask(userId, taskCreateDTO);
-            logger.info("Задача успешно создана. ID: {}, Название: {}", createdTask.getId(), createdTask.getTitle());
+            logger.info("Task created successfully. ID: {}, Title: {}", createdTask.getId(), createdTask.getTitle());
             return ResponseEntity.status(HttpStatus.CREATED).body(createdTask);
         } catch (Exception e) {
-            logger.error("Ошибка при создании задачи для пользователя {}: {}", userId, e.getMessage(), e);
+            logger.error("Error creating task for user {}: {}", userId, e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -78,14 +78,14 @@ public class TaskController {
             @PathVariable Long taskId,
             @RequestBody @Valid TaskUpdateDTO taskUpdateDTO) {
 
-        logger.info("Обновление задачи {} для пользователя {}. Данные: {}", taskId, userId, taskUpdateDTO);
+        logger.info("Updating task {} for user {}. Data: {}", taskId, userId, taskUpdateDTO);
 
         try {
             TaskDTO updatedTask = taskService.updateTask(taskId, userId, taskUpdateDTO);
-            logger.info("Задача {} успешно обновлена. Новый статус: {}", taskId, updatedTask.isActive());
+            logger.info("Task {} updated successfully. New status: {}", taskId, updatedTask.isActive());
             return ResponseEntity.ok(updatedTask);
         } catch (Exception e) {
-            logger.error("Ошибка при обновлении задачи {} для пользователя {}: {}", taskId, userId, e.getMessage(), e);
+            logger.error("Error updating task {} for user {}: {}", taskId, userId, e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -95,14 +95,14 @@ public class TaskController {
             @PathVariable Long userId,
             @PathVariable Long taskId) {
 
-        logger.info("Переключение статуса задачи {} для пользователя {}", taskId, userId);
+        logger.info("Toggling status for task {} for user {}", taskId, userId);
 
         try {
             TaskDTO toggledTask = taskService.toggleTaskStatus(taskId, userId);
-            logger.info("Статус задачи {} успешно изменен. Новый статус: {}", taskId, toggledTask.isActive());
+            logger.info("Task {} status toggled successfully. New status: {}", taskId, toggledTask.isActive());
             return ResponseEntity.ok(toggledTask);
         } catch (Exception e) {
-            logger.error("Ошибка при переключении статуса задачи {} для пользователя {}: {}", taskId, userId, e.getMessage(), e);
+            logger.error("Error toggling status for task {} for user {}: {}", taskId, userId, e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -112,14 +112,14 @@ public class TaskController {
             @PathVariable Long userId,
             @PathVariable Long taskId) {
 
-        logger.warn("Удаление задачи {} для пользователя {}", taskId, userId);
+        logger.warn("Deleting task {} for user {}", taskId, userId);
 
         try {
             taskService.deleteTask(taskId, userId);
-            logger.warn("Задача {} успешно удалена пользователем {}", taskId, userId);
+            logger.warn("Task {} deleted successfully by user {}", taskId, userId);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
-            logger.error("Ошибка при удалении задачи {} для пользователя {}: {}", taskId, userId, e.getMessage(), e);
+            logger.error("Error deleting task {} for user {}: {}", taskId, userId, e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
         }
     }
